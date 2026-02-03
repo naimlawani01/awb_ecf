@@ -301,16 +301,16 @@ export default function Layout() {
         />
       )}
       
-      {/* Sidebar */}
+      {/* Sidebar - Fixed position */}
       <aside
         className={clsx(
-          'fixed lg:static inset-y-0 left-0 z-30 bg-cargo-dark border-r border-elite-900/50',
-          'transform transition-all duration-300 lg:transform-none',
+          'fixed inset-y-0 left-0 z-30 bg-cargo-dark border-r border-elite-900/50',
+          'transform transition-all duration-300',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
           sidebarCollapsed ? 'lg:w-20' : 'w-72'
         )}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-screen">
           {/* Logo */}
           <div className={clsx(
             'flex items-center gap-3 px-6 py-5 border-b border-elite-900/50',
@@ -330,9 +330,9 @@ export default function Layout() {
             )}
           </div>
           
-          {/* Navigation */}
+          {/* Navigation - with min-h-0 for proper flex shrinking */}
           <nav className={clsx(
-            'flex-1 py-6 space-y-1 overflow-y-auto',
+            'flex-1 min-h-0 py-6 space-y-1 overflow-y-auto',
             sidebarCollapsed ? 'lg:px-2' : 'px-4'
           )}>
             {navItems.map((item) => {
@@ -366,54 +366,50 @@ export default function Layout() {
             })}
           </nav>
           
-          {/* User section */}
+          {/* User section - always visible at bottom */}
           <div className={clsx(
-            'p-4 border-t border-elite-900/50',
+            'flex-shrink-0 p-4 border-t border-elite-900/50',
             sidebarCollapsed && 'lg:p-2'
           )}>
             <div className={clsx(
-              'glass-card p-4',
-              sidebarCollapsed && 'lg:p-2'
+              'flex items-center gap-3',
+              sidebarCollapsed && 'lg:justify-center'
             )}>
-              {sidebarCollapsed ? (
-                <button
-                  onClick={logout}
-                  className="w-full flex items-center justify-center p-2 text-gray-400 hover:text-white hover:bg-elite-900/40 rounded-lg transition-colors"
-                  title="Sign Out"
-                >
-                  <LogOut className="w-5 h-5" />
-                </button>
-              ) : (
+              {!sidebarCollapsed && (
                 <>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-elite-500 to-elite-700 flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-medium">
-                        {user?.first_name?.[0] || user?.username?.[0]?.toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">
-                        {user?.first_name || user?.username}
-                      </p>
-                      <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
-                    </div>
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-elite-500 to-elite-700 flex items-center justify-center flex-shrink-0">
+                    <span className="text-white text-sm font-medium">
+                      {user?.first_name?.[0] || user?.username?.[0]?.toUpperCase()}
+                    </span>
                   </div>
-                  <button
-                    onClick={logout}
-                    className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-elite-900/40 rounded-lg transition-colors"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Sign Out</span>
-                  </button>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-white truncate">
+                      {user?.first_name || user?.username}
+                    </p>
+                    <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+                  </div>
                 </>
               )}
+              <button
+                onClick={logout}
+                className={clsx(
+                  'flex items-center justify-center gap-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors',
+                  sidebarCollapsed ? 'p-2' : 'p-2'
+                )}
+                title="Se déconnecter"
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
             </div>
           </div>
         </div>
       </aside>
       
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Main content - with left margin for fixed sidebar */}
+      <div className={clsx(
+        'flex-1 flex flex-col min-w-0 transition-all duration-300',
+        sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-72'
+      )}>
         {/* Header */}
         <header className="sticky top-0 z-10 bg-cargo-darker/80 backdrop-blur-xl border-b border-elite-900/50">
           <div className="flex items-center justify-between px-4 lg:px-8 py-4">
@@ -456,7 +452,7 @@ export default function Layout() {
             </button>
             
             {/* Header actions */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <button 
                 className="relative p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-elite-900/40"
                 title="Notifications"
@@ -472,15 +468,6 @@ export default function Layout() {
               >
                 <Keyboard className="w-5 h-5" />
               </button>
-              
-              <div className="hidden lg:flex items-center gap-3 pl-3 border-l border-elite-800/50">
-                <div className="text-right">
-                  <p className="text-sm font-medium text-white">
-                    {user?.first_name} {user?.last_name}
-                  </p>
-                  <p className="text-xs text-gray-500">{user?.email}</p>
-                </div>
-              </div>
             </div>
           </div>
         </header>
