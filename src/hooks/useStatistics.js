@@ -45,3 +45,17 @@ export function useTrends(days = 30) {
   })
 }
 
+export function useRoutes(limit = 20) {
+  return useQuery({
+    queryKey: ['statistics', 'routes', limit],
+    queryFn: () => statisticsApi.getRoutes(limit),
+  })
+}
+
+export function useAirlines(limit = 10) {
+  return useQuery({
+    queryKey: ['statistics', 'airlines', limit],
+    queryFn: () => statisticsApi.getAirlines(limit),
+  })
+}
+

@@ -205,6 +205,16 @@ export const statisticsApi = {
     const response = await api.get('/statistics/trends', { params: { days } })
     return response.data
   },
+  
+  getRoutes: async (limit = 20) => {
+    const response = await api.get('/statistics/routes', { params: { limit } })
+    return response.data
+  },
+  
+  getAirlines: async (limit = 10) => {
+    const response = await api.get('/statistics/airlines', { params: { limit } })
+    return response.data
+  },
 }
 
 // Reference API

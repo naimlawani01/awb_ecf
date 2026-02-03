@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
-import { useDashboardStats, useTopClients, useTrends } from '../hooks/useStatistics'
+import { useDashboardStats, useTopClients, useTrends, useRoutes, useAirlines } from '../hooks/useStatistics'
 import { useRecentDocuments } from '../hooks/useDocuments'
 import StatCard from '../components/StatCard'
 import { TrendChart, DonutChart, ComparisonBarChart } from '../components/Charts'
@@ -21,6 +21,8 @@ import {
   Globe,
   Zap,
   Building2,
+  MapPin,
+  Navigation,
 } from 'lucide-react'
 import { format, formatDistanceToNow } from 'date-fns'
 
@@ -83,6 +85,8 @@ export default function DashboardPage() {
   const { data: topClients } = useTopClients(5)
   const { data: trends } = useTrends(30)
   const { data: recentDocs } = useRecentDocuments(7, 10)
+  const { data: routes } = useRoutes(10)
+  const { data: airlines } = useAirlines(5)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState(new Date())
   
@@ -419,6 +423,105 @@ export default function DashboardPage() {
             <div className="py-12 text-center text-gray-500">
               <FileText className="w-12 h-12 mx-auto mb-3 opacity-20" />
               <p>No recent documents</p>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* Routes & Airlines row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Top Routes */}
+        <div className="glass-card p-6 hover:border-elite-700/20 transition-colors">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <Navigation className="w-5 h-5 text-elite-400" />
+              Top Routes
+            </h3>
+            {routes?.main_hub && (
+              <span className="text-xs text-gray-500 bg-elite-900/30 px-2 py-1 rounded-full flex items-center gap-1">
+                <MapPin className="w-3 h-3" />
+                Hub: {routes.main_hub}
+              </span>
+            )}
+          </div>
+          
+          {routes?.routes?.length > 0 ? (
+            <div className="space-y-3">
+              {routes.routes.slice(0, 6).map((route, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 rounded-xl bg-elite-900/20 hover:bg-elite-900/40 transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 font-mono text-sm">
+                      <span className="text-white font-bold">{route.origin}</span>
+                      <Plane className="w-4 h-4 text-elite-400 rotate-90" />
+                      <span className="text-white font-bold">{route.destination}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-24 h-1.5 bg-elite-900/50 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-elite-500 to-elite-400 rounded-full"
+                        style={{ width: `${route.percentage}%` }}
+                      />
+                    </div>
+                    <span className="text-white font-bold text-sm w-8">{route.count}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-12 text-center text-gray-500">
+              <Navigation className="w-12 h-12 mx-auto mb-3 opacity-20" />
+              <p>No route data available</p>
+            </div>
+          )}
+        </div>
+        
+        {/* Airlines */}
+        <div className="glass-card p-6 hover:border-elite-700/20 transition-colors">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <Plane className="w-5 h-5 text-cargo-gold" />
+              Airlines (by AWB)
+            </h3>
+            {airlines?.total_awbs && (
+              <span className="text-xs text-gray-500 bg-elite-900/30 px-2 py-1 rounded-full">
+                {airlines.total_awbs} total AWBs
+              </span>
+            )}
+          </div>
+          
+          {airlines?.airlines?.length > 0 ? (
+            <div className="space-y-3">
+              {airlines.airlines.map((airline, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 rounded-xl bg-elite-900/20 hover:bg-elite-900/40 transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className={`w-10 h-10 rounded-lg flex items-center justify-center font-mono font-bold text-sm ${
+                      index === 0 ? 'bg-gradient-to-br from-cargo-gold to-amber-600 text-white' :
+                      index === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-400 text-gray-800' :
+                      index === 2 ? 'bg-gradient-to-br from-amber-700 to-amber-800 text-white' :
+                      'bg-elite-800/50 text-gray-400'
+                    }`}>
+                      {airline.prefix}
+                    </span>
+                    <div>
+                      <p className="text-white font-medium">{airline.airline_name}</p>
+                      <p className="text-xs text-gray-500">{airline.percentage}% of shipments</p>
+                    </div>
+                  </div>
+                  <span className="text-2xl font-bold text-white">{airline.count}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-12 text-center text-gray-500">
+              <Plane className="w-12 h-12 mx-auto mb-3 opacity-20" />
+              <p>No airline data available</p>
             </div>
           )}
         </div>
