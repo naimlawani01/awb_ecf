@@ -62,6 +62,8 @@ export default function DocumentsPage() {
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [selectedPeriod, setSelectedPeriod] = useState('all')
+  const [sortBy, setSortBy] = useState('date_created')
+  const [sortDir, setSortDir] = useState('desc')
   
   // Initialize filters from URL search params
   const getInitialFilters = () => ({
@@ -110,10 +112,19 @@ export default function DocumentsPage() {
   const { data, isLoading, refetch, isFetching } = useDocuments({
     page,
     page_size: 25,
+    order_by: sortBy,
+    order_dir: sortDir,
     ...Object.fromEntries(
       Object.entries(filters).filter(([_, v]) => v !== null && v !== '')
     ),
   })
+  
+  // Handle sorting
+  const handleSort = (column, direction) => {
+    setSortBy(column)
+    setSortDir(direction)
+    setPage(1)
+  }
 
   // Keyboard shortcut for search focus
   useEffect(() => {
@@ -143,14 +154,24 @@ export default function DocumentsPage() {
   const columns = [
     {
       key: 'document_number',
-      label: 'AWB Number',
+      label: 'N° AWB',
+      sortable: true,
       render: (value) => (
         <span className="font-mono text-elite-400 font-medium">{value || '-'}</span>
       ),
     },
     {
+      key: 'reference_number',
+      label: 'Référence',
+      sortable: true,
+      render: (value) => (
+        <span className="font-mono text-amber-400 font-medium">{value || '-'}</span>
+      ),
+    },
+    {
       key: 'shipper',
-      label: 'Shipper',
+      label: 'Expéditeur',
+      sortable: true,
       render: (value) => (
         <span className="text-white truncate max-w-[150px] block" title={value}>
           {value || '-'}
@@ -159,7 +180,8 @@ export default function DocumentsPage() {
     },
     {
       key: 'consignee',
-      label: 'Consignee',
+      label: 'Destinataire',
+      sortable: true,
       render: (value) => (
         <span className="text-white truncate max-w-[150px] block" title={value}>
           {value || '-'}
@@ -179,16 +201,18 @@ export default function DocumentsPage() {
     },
     {
       key: 'status',
-      label: 'Status',
+      label: 'Statut',
+      sortable: true,
       render: (value) => getStatusBadge(value),
     },
     {
       key: 'document_date',
       label: 'Date',
+      sortable: true,
       render: (value) => (
         <div className="flex flex-col">
           <span className="text-gray-300 text-sm">
-            {value ? format(new Date(value), 'MMM d, yyyy') : '-'}
+            {value ? format(new Date(value), 'dd/MM/yyyy') : '-'}
           </span>
           {value && (
             <span className="text-gray-500 text-xs">
@@ -578,6 +602,9 @@ export default function DocumentsPage() {
         onPageChange={setPage}
         onRowClick={(row) => navigate(`/documents/${row.id}`)}
         emptyMessage="Aucun document trouvé correspondant à vos critères"
+        sortBy={sortBy}
+        sortDir={sortDir}
+        onSort={handleSort}
       />
     </div>
   )

@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react'
 import clsx from 'clsx'
 import LoadingSpinner from './LoadingSpinner'
 
@@ -11,7 +10,31 @@ export default function DataTable({
   onPageChange,
   onRowClick,
   emptyMessage = 'No data found',
+  sortBy,
+  sortDir,
+  onSort,
 }) {
+  const handleSort = (columnKey) => {
+    if (!onSort) return
+    
+    if (sortBy === columnKey) {
+      // Toggle direction
+      onSort(columnKey, sortDir === 'asc' ? 'desc' : 'asc')
+    } else {
+      // New column, default to desc
+      onSort(columnKey, 'desc')
+    }
+  }
+  
+  const getSortIcon = (columnKey) => {
+    if (sortBy !== columnKey) {
+      return <ArrowUpDown className="w-3.5 h-3.5 text-gray-600" />
+    }
+    return sortDir === 'asc' 
+      ? <ArrowUp className="w-3.5 h-3.5 text-elite-400" />
+      : <ArrowDown className="w-3.5 h-3.5 text-elite-400" />
+  }
+  
   if (isLoading) {
     return (
       <div className="glass-card p-8 flex items-center justify-center">
@@ -39,10 +62,15 @@ export default function DataTable({
                   key={column.key}
                   className={clsx(
                     'px-4 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider',
+                    column.sortable && onSort && 'cursor-pointer hover:text-white transition-colors select-none',
                     column.className
                   )}
+                  onClick={() => column.sortable && handleSort(column.key)}
                 >
-                  {column.label}
+                  <div className="flex items-center gap-1.5">
+                    {column.label}
+                    {column.sortable && onSort && getSortIcon(column.key)}
+                  </div>
                 </th>
               ))}
             </tr>
