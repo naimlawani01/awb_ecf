@@ -139,29 +139,33 @@ export default function DocumentDetailPage() {
             </h3>
             
             <div className="flex items-center justify-center gap-8">
-              <div className="text-center">
-                <div className="w-16 h-16 rounded-full bg-elite-400/20 flex items-center justify-center mb-2">
-                  <span className="text-2xl font-display font-bold text-elite-400">
-                    {document.origin || '---'}
+              <div className="text-center min-w-[80px]">
+                <div className="w-16 h-16 rounded-full bg-elite-400/20 flex items-center justify-center mb-2 mx-auto">
+                  <span className="text-xl font-display font-bold text-elite-400">
+                    {(document.origin || '---').substring(0, 3).toUpperCase()}
                   </span>
                 </div>
                 <p className="text-sm text-gray-400">Origine</p>
+                {document.origin && document.origin.length > 3 && (
+                  <p className="text-xs text-gray-500 mt-1">{document.origin}</p>
+                )}
               </div>
               
               <div className="flex-1 max-w-xs relative">
                 <div className="h-0.5 bg-gradient-to-r from-elite-400 to-primary-600" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-3 py-1 bg-cargo-dark rounded-full text-xs text-gray-400">
-                  {document.route || 'Direct'}
-                </div>
+                <Plane className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               </div>
               
-              <div className="text-center">
-                <div className="w-16 h-16 rounded-full bg-primary-600/20 flex items-center justify-center mb-2">
-                  <span className="text-2xl font-display font-bold text-primary-400">
-                    {document.destination || '---'}
+              <div className="text-center min-w-[80px]">
+                <div className="w-16 h-16 rounded-full bg-primary-600/20 flex items-center justify-center mb-2 mx-auto">
+                  <span className="text-xl font-display font-bold text-primary-400">
+                    {(document.destination || '---').substring(0, 3).toUpperCase()}
                   </span>
                 </div>
                 <p className="text-sm text-gray-400">Destination</p>
+                {document.destination && document.destination.length > 3 && (
+                  <p className="text-xs text-gray-500 mt-1">{document.destination}</p>
+                )}
               </div>
             </div>
             
@@ -288,44 +292,71 @@ export default function DocumentDetailPage() {
               {awbDetails.charges_summary && (
                 <div className="mt-6 pt-4 border-t border-white/10">
                   <h4 className="text-sm font-medium text-gray-400 mb-3">Récapitulatif des charges</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <p className="text-xs text-gray-500 uppercase tracking-wider">Prépayé</p>
-                      {awbDetails.charges_summary.weight_charge_prepaid > 0 && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Frais de poids</span>
-                          <span className="text-white font-mono">{awbDetails.charges_summary.weight_charge_prepaid.toFixed(2)}</span>
-                        </div>
-                      )}
-                      {awbDetails.charges_summary.other_due_agent_prepaid > 0 && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Autres (Agent)</span>
-                          <span className="text-white font-mono">{awbDetails.charges_summary.other_due_agent_prepaid.toFixed(2)}</span>
-                        </div>
-                      )}
-                      {awbDetails.charges_summary.total_prepaid > 0 && (
-                        <div className="flex justify-between text-sm font-bold pt-2 border-t border-white/10">
-                          <span className="text-elite-400">Total Prépayé</span>
-                          <span className="text-cargo-success font-mono">{awbDetails.charges_summary.total_prepaid.toFixed(2)} {awbDetails.currency}</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-xs text-gray-500 uppercase tracking-wider">Dû à destination</p>
-                      {awbDetails.charges_summary.weight_charge_collect > 0 && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Frais de poids</span>
-                          <span className="text-white font-mono">{awbDetails.charges_summary.weight_charge_collect.toFixed(2)}</span>
-                        </div>
-                      )}
-                      {awbDetails.charges_summary.total_collect > 0 && (
-                        <div className="flex justify-between text-sm font-bold pt-2 border-t border-white/10">
-                          <span className="text-elite-400">Total Collect</span>
-                          <span className="text-amber-400 font-mono">{awbDetails.charges_summary.total_collect.toFixed(2)} {awbDetails.currency}</span>
-                        </div>
-                      )}
-                    </div>
+                  
+                  {/* Table header */}
+                  <div className="grid grid-cols-3 gap-2 text-xs text-gray-500 uppercase tracking-wider mb-2 pb-2 border-b border-white/10">
+                    <span></span>
+                    <span className="text-center">Prepaid</span>
+                    <span className="text-center">Collect</span>
                   </div>
+                  
+                  {/* Weight Charge */}
+                  {(awbDetails.charges_summary.weight_charge_prepaid > 0 || awbDetails.charges_summary.weight_charge_collect > 0) && (
+                    <div className="grid grid-cols-3 gap-2 text-sm py-1">
+                      <span className="text-gray-400">Weight Charge</span>
+                      <span className="text-white font-mono text-center">{awbDetails.charges_summary.weight_charge_prepaid > 0 ? awbDetails.charges_summary.weight_charge_prepaid.toFixed(2) : '-'}</span>
+                      <span className="text-white font-mono text-center">{awbDetails.charges_summary.weight_charge_collect > 0 ? awbDetails.charges_summary.weight_charge_collect.toFixed(2) : '-'}</span>
+                    </div>
+                  )}
+                  
+                  {/* Valuation Charge */}
+                  {(awbDetails.charges_summary.valuation_charge_prepaid > 0 || awbDetails.charges_summary.valuation_charge_collect > 0) && (
+                    <div className="grid grid-cols-3 gap-2 text-sm py-1">
+                      <span className="text-gray-400">Valuation Charge</span>
+                      <span className="text-white font-mono text-center">{awbDetails.charges_summary.valuation_charge_prepaid > 0 ? awbDetails.charges_summary.valuation_charge_prepaid.toFixed(2) : '-'}</span>
+                      <span className="text-white font-mono text-center">{awbDetails.charges_summary.valuation_charge_collect > 0 ? awbDetails.charges_summary.valuation_charge_collect.toFixed(2) : '-'}</span>
+                    </div>
+                  )}
+                  
+                  {/* Tax */}
+                  {(awbDetails.charges_summary.tax_prepaid > 0 || awbDetails.charges_summary.tax_collect > 0) && (
+                    <div className="grid grid-cols-3 gap-2 text-sm py-1">
+                      <span className="text-gray-400">Tax</span>
+                      <span className="text-white font-mono text-center">{awbDetails.charges_summary.tax_prepaid > 0 ? awbDetails.charges_summary.tax_prepaid.toFixed(2) : '-'}</span>
+                      <span className="text-white font-mono text-center">{awbDetails.charges_summary.tax_collect > 0 ? awbDetails.charges_summary.tax_collect.toFixed(2) : '-'}</span>
+                    </div>
+                  )}
+                  
+                  {/* Other Charges Due Agent */}
+                  {(awbDetails.charges_summary.other_due_agent_prepaid > 0 || awbDetails.charges_summary.other_due_agent_collect > 0) && (
+                    <div className="grid grid-cols-3 gap-2 text-sm py-1">
+                      <span className="text-gray-400">Other Due Agent</span>
+                      <span className="text-white font-mono text-center">{awbDetails.charges_summary.other_due_agent_prepaid > 0 ? awbDetails.charges_summary.other_due_agent_prepaid.toFixed(2) : '-'}</span>
+                      <span className="text-white font-mono text-center">{awbDetails.charges_summary.other_due_agent_collect > 0 ? awbDetails.charges_summary.other_due_agent_collect.toFixed(2) : '-'}</span>
+                    </div>
+                  )}
+                  
+                  {/* Other Charges Due Carrier */}
+                  {(awbDetails.charges_summary.other_due_carrier_prepaid > 0 || awbDetails.charges_summary.other_due_carrier_collect > 0) && (
+                    <div className="grid grid-cols-3 gap-2 text-sm py-1">
+                      <span className="text-gray-400">Other Due Carrier</span>
+                      <span className="text-white font-mono text-center">{awbDetails.charges_summary.other_due_carrier_prepaid > 0 ? awbDetails.charges_summary.other_due_carrier_prepaid.toFixed(2) : '-'}</span>
+                      <span className="text-white font-mono text-center">{awbDetails.charges_summary.other_due_carrier_collect > 0 ? awbDetails.charges_summary.other_due_carrier_collect.toFixed(2) : '-'}</span>
+                    </div>
+                  )}
+                  
+                  {/* Total */}
+                  {(awbDetails.charges_summary.total_prepaid > 0 || awbDetails.charges_summary.total_collect > 0) && (
+                    <div className="grid grid-cols-3 gap-2 text-sm py-2 mt-2 border-t border-white/10 font-bold">
+                      <span className="text-elite-400">TOTAL</span>
+                      <span className="text-cargo-success font-mono text-center">{awbDetails.charges_summary.total_prepaid > 0 ? `${awbDetails.charges_summary.total_prepaid.toFixed(2)}` : '-'}</span>
+                      <span className="text-amber-400 font-mono text-center">{awbDetails.charges_summary.total_collect > 0 ? `${awbDetails.charges_summary.total_collect.toFixed(2)}` : '-'}</span>
+                    </div>
+                  )}
+                  
+                  {awbDetails.currency && (
+                    <p className="text-xs text-gray-500 mt-2 text-right">Devise: {awbDetails.currency}</p>
+                  )}
                 </div>
               )}
             </div>
@@ -391,6 +422,24 @@ export default function DocumentDetailPage() {
                   <p className="text-white mt-1 font-mono">{awbDetails.accounting_information}</p>
                 </div>
               )}
+              
+              {awbDetails.sci && (
+                <div className="mt-4 pt-4 border-t border-white/10">
+                  <label className="text-sm text-gray-500">SCI (Shipment Control Info)</label>
+                  <p className="text-white mt-1">{awbDetails.sci}</p>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* Notes / Information */}
+          {awbDetails?.notes && (
+            <div className="glass-card p-6">
+              <h3 className="text-lg font-display font-semibold text-white mb-4 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-elite-400" />
+                Information
+              </h3>
+              <p className="text-white whitespace-pre-line">{awbDetails.notes}</p>
             </div>
           )}
         </div>
@@ -419,37 +468,46 @@ export default function DocumentDetailPage() {
             </div>
           )}
           
-          {/* Signatures */}
+          {/* Certifications & Signatures */}
           {awbDetails?.signatures && (awbDetails.signatures.shipper || awbDetails.signatures.carrier) && (
             <div className="glass-card p-6">
               <h3 className="text-lg font-display font-semibold text-white mb-4 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-elite-400" />
-                Signatures
+                Certifications
               </h3>
               
               <div className="space-y-4">
                 {awbDetails.signatures.shipper && (
-                  <div>
-                    <label className="text-xs text-gray-500">Expéditeur</label>
-                    <p className="text-white italic">{awbDetails.signatures.shipper}</p>
+                  <div className="p-3 rounded-lg bg-white/5">
+                    <label className="text-xs text-gray-500 uppercase tracking-wide">Shipper's Certification</label>
+                    <p className="text-white mt-2">{awbDetails.signatures.shipper}</p>
                   </div>
                 )}
                 {awbDetails.signatures.carrier && (
-                  <div>
-                    <label className="text-xs text-gray-500">Transporteur</label>
-                    <p className="text-white italic">{awbDetails.signatures.carrier}</p>
-                  </div>
-                )}
-                {awbDetails.signatures.date && (
-                  <div>
-                    <label className="text-xs text-gray-500">Date/Lieu</label>
-                    <p className="text-white">
-                      {awbDetails.signatures.place && `${awbDetails.signatures.place}, `}
-                      {awbDetails.signatures.date}
-                    </p>
+                  <div className="p-3 rounded-lg bg-white/5">
+                    <label className="text-xs text-gray-500 uppercase tracking-wide">Carrier's Certification</label>
+                    <p className="text-white mt-2">{awbDetails.signatures.carrier}</p>
+                    {(awbDetails.signatures.place || awbDetails.signatures.date) && (
+                      <p className="text-gray-400 text-sm mt-2">
+                        {awbDetails.signatures.place}
+                        {awbDetails.signatures.place && awbDetails.signatures.date && ', '}
+                        {awbDetails.signatures.date}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
+            </div>
+          )}
+          
+          {/* Issued By */}
+          {awbDetails?.issued_by && (
+            <div className="glass-card p-6">
+              <h3 className="text-lg font-display font-semibold text-white mb-4 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-elite-400" />
+                Issued By
+              </h3>
+              <p className="text-white whitespace-pre-line">{awbDetails.issued_by}</p>
             </div>
           )}
           
@@ -488,8 +546,8 @@ export default function DocumentDetailPage() {
             </div>
           </div>
           
-          {/* Tags */}
-          {document.tags && document.tags !== '--------' && (
+          {/* Tags - hide if empty or placeholder values like '--------' or 'y-------' */}
+          {document.tags && !/^[-y]+$/.test(document.tags) && document.tags.replace(/-/g, '').length > 1 && (
             <div className="glass-card p-6">
               <h3 className="text-lg font-display font-semibold text-white mb-4 flex items-center gap-2">
                 <Tag className="w-5 h-5 text-elite-400" />

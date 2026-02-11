@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authApi } from '../services/api'
-import toast from 'react-hot-toast'
 
 const AuthContext = createContext(null)
 
@@ -43,13 +42,10 @@ export function AuthProvider({ children }) {
       localStorage.setItem('user', JSON.stringify(response.user))
       setUser(response.user)
       
-      toast.success(`Welcome back, ${response.user.first_name || response.user.username}!`)
       navigate('/dashboard')
       
       return response
     } catch (error) {
-      const message = error.response?.data?.detail || 'Login failed'
-      toast.error(message)
       throw error
     } finally {
       setIsLoading(false)
@@ -60,7 +56,6 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('access_token')
     localStorage.removeItem('user')
     setUser(null)
-    toast.success('Logged out successfully')
     navigate('/login')
   }, [navigate])
   
