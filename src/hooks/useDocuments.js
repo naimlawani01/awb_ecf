@@ -41,6 +41,14 @@ export function useDocumentLogs(documentId) {
   })
 }
 
+export function useDocumentDetails(documentId) {
+  return useQuery({
+    queryKey: ['document', documentId, 'details'],
+    queryFn: () => documentsApi.getDetails(documentId),
+    enabled: !!documentId,
+  })
+}
+
 export function useClientDocuments(clientName, clientType = 'shipper', limit = 100) {
   return useQuery({
     queryKey: ['documents', 'client', clientName, clientType],

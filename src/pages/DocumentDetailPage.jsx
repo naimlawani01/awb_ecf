@@ -1,16 +1,19 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { useDocument, useDocumentLogs } from '../hooks/useDocuments'
+import { useDocument, useDocumentLogs, useDocumentDetails } from '../hooks/useDocuments'
 import LoadingSpinner from '../components/LoadingSpinner'
-import { ArrowLeft, FileText, User, MapPin, Calendar, Clock, Tag } from 'lucide-react'
+import { 
+  ArrowLeft, FileText, User, MapPin, Calendar, Clock, Tag, 
+  Package, Scale, DollarSign, Plane, Receipt, CreditCard 
+} from 'lucide-react'
 import { format } from 'date-fns'
 import clsx from 'clsx'
 
 const statusMap = {
-  0: { label: 'Draft', class: 'bg-gray-500/20 text-gray-400' },
-  1: { label: 'Active', class: 'badge-success' },
-  2: { label: 'Completed', class: 'badge-info' },
-  3: { label: 'Cancelled', class: 'badge-danger' },
-  4: { label: 'Archived', class: 'bg-gray-500/20 text-gray-400' },
+  0: { label: 'Brouillon', class: 'bg-gray-500/20 text-gray-400' },
+  1: { label: 'Actif', class: 'badge-success' },
+  2: { label: 'Complété', class: 'badge-info' },
+  3: { label: 'Annulé', class: 'badge-danger' },
+  4: { label: 'Archivé', class: 'bg-gray-500/20 text-gray-400' },
 }
 
 const typeMap = {
@@ -26,6 +29,9 @@ export default function DocumentDetailPage() {
   const navigate = useNavigate()
   const { data: document, isLoading, error } = useDocument(id)
   const { data: logs } = useDocumentLogs(id)
+  const { data: detailsData, isLoading: detailsLoading } = useDocumentDetails(id)
+  
+  const awbDetails = detailsData?.awb_details
   
   if (isLoading) {
     return (
@@ -139,7 +145,7 @@ export default function DocumentDetailPage() {
                     {document.origin || '---'}
                   </span>
                 </div>
-                <p className="text-sm text-gray-400">Origin</p>
+                <p className="text-sm text-gray-400">Origine</p>
               </div>
               
               <div className="flex-1 max-w-xs relative">
@@ -158,11 +164,295 @@ export default function DocumentDetailPage() {
                 <p className="text-sm text-gray-400">Destination</p>
               </div>
             </div>
+            
+            {/* Flight routing details */}
+            {awbDetails?.routing && (awbDetails.routing.flights?.length > 0 || awbDetails.routing.by?.length > 0) && (
+              <div className="mt-6 pt-4 border-t border-white/10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  {awbDetails.routing.to?.length > 0 && (
+                    <div>
+                      <label className="text-gray-500">Via</label>
+                      <p className="text-white font-mono">{awbDetails.routing.to.filter(Boolean).join(' → ')}</p>
+                    </div>
+                  )}
+                  {awbDetails.routing.by?.length > 0 && (
+                    <div>
+                      <label className="text-gray-500">Compagnies</label>
+                      <p className="text-white">{awbDetails.routing.by.filter(Boolean).join(', ')}</p>
+                    </div>
+                  )}
+                  {awbDetails.routing.flights?.length > 0 && (
+                    <div>
+                      <label className="text-gray-500">Vols</label>
+                      <p className="text-white font-mono">{awbDetails.routing.flights.filter(Boolean).join(', ')}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
+          
+          {/* Rate Description - Tarification */}
+          {detailsLoading ? (
+            <div className="glass-card p-6">
+              <div className="flex items-center justify-center py-8">
+                <LoadingSpinner />
+                <span className="ml-3 text-gray-400">Chargement des détails...</span>
+              </div>
+            </div>
+          ) : awbDetails?.rate_description && (
+            <div className="glass-card p-6">
+              <h3 className="text-lg font-display font-semibold text-white mb-4 flex items-center gap-2">
+                <Receipt className="w-5 h-5 text-elite-400" />
+                Rate Description
+              </h3>
+              
+              {/* Items table */}
+              {awbDetails.rate_description.items?.length > 0 && (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-white/10 text-left">
+                        <th className="py-3 px-2 text-gray-400 font-medium">Pièces</th>
+                        <th className="py-3 px-2 text-gray-400 font-medium">Poids Brut</th>
+                        <th className="py-3 px-2 text-gray-400 font-medium">Poids Taxable</th>
+                        <th className="py-3 px-2 text-gray-400 font-medium">Tarif</th>
+                        <th className="py-3 px-2 text-gray-400 font-medium">Total</th>
+                        <th className="py-3 px-2 text-gray-400 font-medium">Nature des marchandises</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {awbDetails.rate_description.items.map((item, idx) => (
+                        <tr key={idx} className="border-b border-white/5">
+                          <td className="py-3 px-2 text-white font-mono">{item.pieces}</td>
+                          <td className="py-3 px-2 text-white font-mono">
+                            {item.gross_weight} {item.scale}
+                          </td>
+                          <td className="py-3 px-2 text-white font-mono">
+                            {item.chargeable_weight} {item.scale}
+                          </td>
+                          <td className="py-3 px-2 text-white font-mono">
+                            {item.rate_charge > 0 ? item.rate_charge.toFixed(2) : '-'}
+                          </td>
+                          <td className="py-3 px-2 text-cargo-success font-mono font-medium">
+                            {item.total > 0 ? item.total.toFixed(2) : '-'}
+                          </td>
+                          <td className="py-3 px-2 text-gray-300 max-w-[200px]">
+                            <span className="line-clamp-2" title={item.nature}>
+                              {item.nature || '-'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot className="border-t border-white/10 bg-white/5">
+                      <tr>
+                        <td className="py-3 px-2 text-elite-400 font-bold">
+                          {awbDetails.rate_description.total_pieces}
+                        </td>
+                        <td className="py-3 px-2 text-elite-400 font-bold font-mono">
+                          {awbDetails.rate_description.total_weight} {awbDetails.rate_description.weight_scale}
+                        </td>
+                        <td colSpan="2" className="py-3 px-2"></td>
+                        <td className="py-3 px-2 text-cargo-success font-bold font-mono">
+                          {awbDetails.rate_description.items_total?.toFixed(2)} {awbDetails.currency}
+                        </td>
+                        <td></td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              )}
+              
+              {/* Other charges */}
+              {awbDetails.other_charges?.length > 0 && (
+                <div className="mt-6 pt-4 border-t border-white/10">
+                  <h4 className="text-sm font-medium text-gray-400 mb-3">Autres frais</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {awbDetails.other_charges.map((charge, idx) => (
+                      <div key={idx} className="p-3 rounded-lg bg-white/5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-gray-400">{charge.code}</span>
+                          <span className="text-xs text-gray-500">{charge.due}</span>
+                        </div>
+                        <p className="text-white font-mono font-medium mt-1">
+                          {charge.amount?.toFixed(2)} {awbDetails.currency}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Charges Summary */}
+              {awbDetails.charges_summary && (
+                <div className="mt-6 pt-4 border-t border-white/10">
+                  <h4 className="text-sm font-medium text-gray-400 mb-3">Récapitulatif des charges</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <p className="text-xs text-gray-500 uppercase tracking-wider">Prépayé</p>
+                      {awbDetails.charges_summary.weight_charge_prepaid > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-400">Frais de poids</span>
+                          <span className="text-white font-mono">{awbDetails.charges_summary.weight_charge_prepaid.toFixed(2)}</span>
+                        </div>
+                      )}
+                      {awbDetails.charges_summary.other_due_agent_prepaid > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-400">Autres (Agent)</span>
+                          <span className="text-white font-mono">{awbDetails.charges_summary.other_due_agent_prepaid.toFixed(2)}</span>
+                        </div>
+                      )}
+                      {awbDetails.charges_summary.total_prepaid > 0 && (
+                        <div className="flex justify-between text-sm font-bold pt-2 border-t border-white/10">
+                          <span className="text-elite-400">Total Prépayé</span>
+                          <span className="text-cargo-success font-mono">{awbDetails.charges_summary.total_prepaid.toFixed(2)} {awbDetails.currency}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-xs text-gray-500 uppercase tracking-wider">Dû à destination</p>
+                      {awbDetails.charges_summary.weight_charge_collect > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-400">Frais de poids</span>
+                          <span className="text-white font-mono">{awbDetails.charges_summary.weight_charge_collect.toFixed(2)}</span>
+                        </div>
+                      )}
+                      {awbDetails.charges_summary.total_collect > 0 && (
+                        <div className="flex justify-between text-sm font-bold pt-2 border-t border-white/10">
+                          <span className="text-elite-400">Total Collect</span>
+                          <span className="text-amber-400 font-mono">{awbDetails.charges_summary.total_collect.toFixed(2)} {awbDetails.currency}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* Additional AWB Info */}
+          {awbDetails && (
+            <div className="glass-card p-6">
+              <h3 className="text-lg font-display font-semibold text-white mb-4 flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-elite-400" />
+                Informations complémentaires
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {awbDetails.currency && (
+                  <div>
+                    <label className="text-sm text-gray-500">Devise</label>
+                    <p className="text-white font-mono">{awbDetails.currency}</p>
+                  </div>
+                )}
+                {awbDetails.weight_payment_type && (
+                  <div>
+                    <label className="text-sm text-gray-500">Paiement poids</label>
+                    <p className="text-white">{awbDetails.weight_payment_type}</p>
+                  </div>
+                )}
+                {awbDetails.other_charges_payment_type && (
+                  <div>
+                    <label className="text-sm text-gray-500">Paiement autres frais</label>
+                    <p className="text-white">{awbDetails.other_charges_payment_type}</p>
+                  </div>
+                )}
+                {awbDetails.value_carrier && (
+                  <div>
+                    <label className="text-sm text-gray-500">Valeur transporteur</label>
+                    <p className="text-white">{awbDetails.value_carrier}</p>
+                  </div>
+                )}
+                {awbDetails.value_customs && (
+                  <div>
+                    <label className="text-sm text-gray-500">Valeur douane</label>
+                    <p className="text-white">{awbDetails.value_customs}</p>
+                  </div>
+                )}
+                {awbDetails.insurance && (
+                  <div>
+                    <label className="text-sm text-gray-500">Assurance</label>
+                    <p className="text-white">{awbDetails.insurance}</p>
+                  </div>
+                )}
+              </div>
+              
+              {awbDetails.handling_information && (
+                <div className="mt-4 pt-4 border-t border-white/10">
+                  <label className="text-sm text-gray-500">Instructions de manutention</label>
+                  <p className="text-white mt-1">{awbDetails.handling_information}</p>
+                </div>
+              )}
+              
+              {awbDetails.accounting_information && (
+                <div className="mt-4 pt-4 border-t border-white/10">
+                  <label className="text-sm text-gray-500">Informations comptables</label>
+                  <p className="text-white mt-1 font-mono">{awbDetails.accounting_information}</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
         
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* Agent info */}
+          {awbDetails?.agent && awbDetails.agent.details && (
+            <div className="glass-card p-6">
+              <h3 className="text-lg font-display font-semibold text-white mb-4 flex items-center gap-2">
+                <Plane className="w-5 h-5 text-elite-400" />
+                Agent IATA
+              </h3>
+              
+              <div className="space-y-3">
+                <div className="p-3 rounded-lg bg-white/5">
+                  <p className="text-white text-sm whitespace-pre-line">{awbDetails.agent.details}</p>
+                </div>
+                {awbDetails.agent.iata_code && (
+                  <div>
+                    <label className="text-xs text-gray-500">Code IATA</label>
+                    <p className="text-elite-400 font-mono font-medium">{awbDetails.agent.iata_code}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Signatures */}
+          {awbDetails?.signatures && (awbDetails.signatures.shipper || awbDetails.signatures.carrier) && (
+            <div className="glass-card p-6">
+              <h3 className="text-lg font-display font-semibold text-white mb-4 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-elite-400" />
+                Signatures
+              </h3>
+              
+              <div className="space-y-4">
+                {awbDetails.signatures.shipper && (
+                  <div>
+                    <label className="text-xs text-gray-500">Expéditeur</label>
+                    <p className="text-white italic">{awbDetails.signatures.shipper}</p>
+                  </div>
+                )}
+                {awbDetails.signatures.carrier && (
+                  <div>
+                    <label className="text-xs text-gray-500">Transporteur</label>
+                    <p className="text-white italic">{awbDetails.signatures.carrier}</p>
+                  </div>
+                )}
+                {awbDetails.signatures.date && (
+                  <div>
+                    <label className="text-xs text-gray-500">Date/Lieu</label>
+                    <p className="text-white">
+                      {awbDetails.signatures.place && `${awbDetails.signatures.place}, `}
+                      {awbDetails.signatures.date}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
           {/* Dates */}
           <div className="glass-card p-6">
             <h3 className="text-lg font-display font-semibold text-white mb-4 flex items-center gap-2">
@@ -172,7 +462,7 @@ export default function DocumentDetailPage() {
             
             <div className="space-y-4">
               <div>
-                <label className="text-sm text-gray-500">Document Date</label>
+                <label className="text-sm text-gray-500">Date du document</label>
                 <p className="text-white">
                   {document.document_date
                     ? format(new Date(document.document_date), 'PPP')
@@ -180,7 +470,7 @@ export default function DocumentDetailPage() {
                 </p>
               </div>
               <div>
-                <label className="text-sm text-gray-500">Created</label>
+                <label className="text-sm text-gray-500">Créé le</label>
                 <p className="text-white">
                   {document.date_created
                     ? format(new Date(document.date_created), 'PPP p')
@@ -188,7 +478,7 @@ export default function DocumentDetailPage() {
                 </p>
               </div>
               <div>
-                <label className="text-sm text-gray-500">Last Modified</label>
+                <label className="text-sm text-gray-500">Dernière modification</label>
                 <p className="text-white">
                   {document.date_modified
                     ? format(new Date(document.date_modified), 'PPP p')
@@ -213,7 +503,7 @@ export default function DocumentDetailPage() {
           <div className="glass-card p-6">
             <h3 className="text-lg font-display font-semibold text-white mb-4 flex items-center gap-2">
               <Clock className="w-5 h-5 text-elite-400" />
-              Activity Log
+              Journal d'activité
             </h3>
             
             {logs?.logs?.length > 0 ? (
@@ -224,7 +514,7 @@ export default function DocumentDetailPage() {
                     className="p-3 rounded-lg bg-white/5 text-sm"
                   >
                     <p className="text-gray-400">
-                      Log Type: {log.log_type}
+                      Type: {log.log_type}
                     </p>
                     <p className="text-gray-500 text-xs mt-1">
                       {format(new Date(log.log_date), 'PPP p')}
@@ -233,7 +523,7 @@ export default function DocumentDetailPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-sm">No activity logs</p>
+              <p className="text-gray-500 text-sm">Aucune activité</p>
             )}
           </div>
         </div>

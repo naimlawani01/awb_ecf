@@ -94,6 +94,11 @@ export const documentsApi = {
     const response = await api.get(`/documents/${documentId}/logs`)
     return response.data
   },
+  
+  getDetails: async (documentId) => {
+    const response = await api.get(`/documents/${documentId}/details`)
+    return response.data
+  },
 }
 
 // Shipments API
@@ -276,6 +281,23 @@ export const exportApi = {
   
   downloadStatisticsPdf: async () => {
     const response = await api.get('/exports/statistics/pdf', {
+      responseType: 'blob',
+    })
+    return response.data
+  },
+  
+  // Detailed reports with AWB data (pieces, weights, charges, routing)
+  downloadDetailedReportExcel: async (params = {}) => {
+    const response = await api.get('/exports/report/detailed/excel', {
+      params,
+      responseType: 'blob',
+    })
+    return response.data
+  },
+  
+  downloadDetailedReportPdf: async (params = {}) => {
+    const response = await api.get('/exports/report/detailed/pdf', {
+      params,
       responseType: 'blob',
     })
     return response.data

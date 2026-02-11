@@ -110,23 +110,30 @@ export default function ReportsPage() {
     setExportMenuOpen(false)
     
     try {
-      toast.loading(`Génération du rapport ${type.toUpperCase()}...`, { id: 'export' })
+      toast.loading(`Génération du rapport ${type.toUpperCase()} détaillé...`, { id: 'export' })
+      
+      // Use the new detailed export endpoints
+      const params = { 
+        start_date: dateRange.start, 
+        end_date: dateRange.end 
+      }
       
       const blob = type === 'excel' 
-        ? await exportApi.downloadDocumentsExcel({ start_date: dateRange.start, end_date: dateRange.end })
-        : await exportApi.downloadStatisticsPdf()
+        ? await exportApi.downloadDetailedReportExcel(params)
+        : await exportApi.downloadDetailedReportPdf(params)
       
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `rapport_${selectedPeriod}_${format(new Date(), 'yyyyMMdd_HHmmss')}.${type === 'excel' ? 'xlsx' : 'pdf'}`
+      a.download = `rapport_awb_detaille_${selectedPeriod}_${format(new Date(), 'yyyyMMdd_HHmmss')}.${type === 'excel' ? 'xlsx' : 'pdf'}`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
       window.URL.revokeObjectURL(url)
       
-      toast.success('Rapport généré avec succès !', { id: 'export' })
+      toast.success('Rapport détaillé généré avec succès !', { id: 'export' })
     } catch (error) {
+      console.error('Export error:', error)
       toast.error('Erreur lors de la génération du rapport', { id: 'export' })
     } finally {
       setIsExporting(false)
@@ -197,33 +204,53 @@ export default function ReportsPage() {
           </button>
           
           {exportMenuOpen && (
-            <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 w-64 glass-card p-2 animate-scale-in z-50">
-              <div className="px-3 py-2 border-b border-white/10 mb-2">
-                <p className="text-xs text-gray-400">Période : {getPeriodLabel()}</p>
+            <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 w-80 glass-card p-3 animate-scale-in z-50">
+              <div className="px-3 py-2 border-b border-white/10 mb-3">
+                <p className="text-sm font-medium text-white">Rapport AWB Détaillé</p>
+                <p className="text-xs text-gray-400 mt-1">Période : {getPeriodLabel()}</p>
                 <p className="text-xs text-gray-500">{dateRange.start} → {dateRange.end}</p>
               </div>
+              
               <button
                 onClick={() => handleExport('excel')}
-                className="w-full px-4 py-3 text-left text-sm text-gray-300 hover:bg-white/5 rounded-lg flex items-center gap-3 group"
+                className="w-full px-3 py-3 text-left text-sm text-gray-300 hover:bg-white/5 rounded-lg flex items-start gap-3 group mb-2"
               >
-                <div className="p-2 rounded-lg bg-green-500/10 group-hover:bg-green-500/20 transition-colors">
-                  <FileSpreadsheet className="w-4 h-4 text-green-400" />
+                <div className="p-2 rounded-lg bg-green-500/10 group-hover:bg-green-500/20 transition-colors flex-shrink-0">
+                  <FileSpreadsheet className="w-5 h-5 text-green-400" />
                 </div>
-                <div>
-                  <p className="font-medium text-white">Export Excel</p>
-                  <p className="text-xs text-gray-500">Données détaillées .xlsx</p>
+                <div className="flex-1">
+                  <p className="font-medium text-white">Export Excel Complet</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    5 feuilles : Récapitulatif, Lignes de tarification, 
+                    Autres frais, Routing/Vols, Statistiques
+                  </p>
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    <span className="px-1.5 py-0.5 text-[10px] rounded bg-green-500/20 text-green-400">Pièces</span>
+                    <span className="px-1.5 py-0.5 text-[10px] rounded bg-green-500/20 text-green-400">Poids</span>
+                    <span className="px-1.5 py-0.5 text-[10px] rounded bg-green-500/20 text-green-400">Tarifs</span>
+                    <span className="px-1.5 py-0.5 text-[10px] rounded bg-green-500/20 text-green-400">Totaux</span>
+                  </div>
                 </div>
               </button>
+              
               <button
                 onClick={() => handleExport('pdf')}
-                className="w-full px-4 py-3 text-left text-sm text-gray-300 hover:bg-white/5 rounded-lg flex items-center gap-3 group"
+                className="w-full px-3 py-3 text-left text-sm text-gray-300 hover:bg-white/5 rounded-lg flex items-start gap-3 group"
               >
-                <div className="p-2 rounded-lg bg-red-500/10 group-hover:bg-red-500/20 transition-colors">
-                  <FileType className="w-4 h-4 text-red-400" />
+                <div className="p-2 rounded-lg bg-red-500/10 group-hover:bg-red-500/20 transition-colors flex-shrink-0">
+                  <FileType className="w-5 h-5 text-red-400" />
                 </div>
-                <div>
-                  <p className="font-medium text-white">Export PDF</p>
-                  <p className="text-xs text-gray-500">Rapport synthétique .pdf</p>
+                <div className="flex-1">
+                  <p className="font-medium text-white">Export PDF Synthèse</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    KPIs, résumé des pièces/poids/montants, 
+                    liste des documents avec totaux
+                  </p>
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    <span className="px-1.5 py-0.5 text-[10px] rounded bg-red-500/20 text-red-400">KPIs</span>
+                    <span className="px-1.5 py-0.5 text-[10px] rounded bg-red-500/20 text-red-400">Résumé</span>
+                    <span className="px-1.5 py-0.5 text-[10px] rounded bg-red-500/20 text-red-400">Imprimable</span>
+                  </div>
                 </div>
               </button>
             </div>
