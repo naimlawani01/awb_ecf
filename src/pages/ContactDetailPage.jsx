@@ -47,12 +47,12 @@ export default function ContactDetailPage() {
   if (!contact) {
     return (
       <div className="glass-card p-8 text-center">
-        <p className="text-gray-400">Contact not found</p>
+        <p className="text-gray-400">Contact introuvable</p>
         <button
           onClick={() => navigate('/contacts')}
           className="btn-primary mt-4"
         >
-          Back to Contacts
+          Retour aux contacts
         </button>
       </div>
     )
@@ -78,7 +78,7 @@ export default function ContactDetailPage() {
           </div>
           <div>
             <h1 className="text-2xl font-display font-bold text-white">
-              {contact.display_name || 'Unknown Contact'}
+              {contact.display_name || 'Contact inconnu'}
             </h1>
             <p className="text-gray-400">{contact.contact_type_name}</p>
           </div>
@@ -90,24 +90,24 @@ export default function ContactDetailPage() {
         {/* Contact info */}
         <div className="glass-card p-6">
           <h3 className="text-lg font-display font-semibold text-white mb-4">
-            Contact Information
+            Informations du contact
           </h3>
           
           <div className="space-y-4">
             <div>
-              <label className="text-sm text-gray-500">Display Name</label>
+              <label className="text-sm text-gray-500">Nom d'affichage</label>
               <p className="text-white">{contact.display_name || '-'}</p>
             </div>
             <div>
-              <label className="text-sm text-gray-500">Account Number</label>
+              <label className="text-sm text-gray-500">N° de compte</label>
               <p className="text-white font-mono">{contact.account_number || '-'}</p>
             </div>
             <div>
-              <label className="text-sm text-gray-500">Contact Type</label>
+              <label className="text-sm text-gray-500">Type de contact</label>
               <p className="text-white">{contact.contact_type_name}</p>
             </div>
             <div>
-              <label className="text-sm text-gray-500">Station ID</label>
+              <label className="text-sm text-gray-500">ID Station</label>
               <p className="text-white">{contact.station_id}</p>
             </div>
           </div>
@@ -121,7 +121,7 @@ export default function ContactDetailPage() {
               Documents
             </h3>
             <span className="text-sm text-gray-400">
-              {documents?.document_count || 0} total
+              {documents?.document_count || 0} au total
             </span>
           </div>
           
@@ -134,7 +134,7 @@ export default function ContactDetailPage() {
                   className="block p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
                 >
                   <p className="text-white font-mono text-sm">
-                    {doc.document_number || 'No number'}
+                    {doc.document_number || 'Sans numéro'}
                   </p>
                   <p className="text-gray-500 text-xs mt-1">
                     {doc.origin} → {doc.destination}
@@ -143,7 +143,7 @@ export default function ContactDetailPage() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-4">No documents found</p>
+            <p className="text-gray-500 text-center py-4">Aucun document trouvé</p>
           )}
         </div>
         
@@ -152,10 +152,10 @@ export default function ContactDetailPage() {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-display font-semibold text-white flex items-center gap-2">
               <Package className="w-5 h-5 text-cargo-success" />
-              Shipments
+              Expéditions
             </h3>
             <span className="text-sm text-gray-400">
-              {shipments?.shipment_count || 0} total
+              {shipments?.shipment_count || 0} au total
             </span>
           </div>
           
@@ -167,13 +167,13 @@ export default function ContactDetailPage() {
                   className="p-3 rounded-lg bg-white/5"
                 >
                   <p className="text-white font-mono text-sm">
-                    {ship.master_number || ship.house_number || 'No number'}
+                    {ship.master_number || ship.house_number || 'Sans numéro'}
                   </p>
                   <p className="text-gray-500 text-xs mt-1">
                     {ship.origin} → {ship.destination}
                     {ship.shipment_date && (
                       <span className="ml-2">
-                        {format(new Date(ship.shipment_date), 'MMM d, yyyy')}
+                        {format(new Date(ship.shipment_date), 'dd/MM/yyyy')}
                       </span>
                     )}
                   </p>
@@ -181,7 +181,7 @@ export default function ContactDetailPage() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-4">No shipments found</p>
+            <p className="text-gray-500 text-center py-4">Aucune expédition trouvée</p>
           )}
         </div>
       </div>

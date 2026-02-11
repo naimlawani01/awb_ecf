@@ -18,6 +18,7 @@ import {
   Calendar,
 } from 'lucide-react'
 import { format, formatDistanceToNow, subMonths, subDays, startOfMonth, startOfWeek, startOfYear, startOfQuarter } from 'date-fns'
+import { fr } from 'date-fns/locale'
 import { exportApi } from '../services/api'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
@@ -216,7 +217,7 @@ export default function DocumentsPage() {
           </span>
           {value && (
             <span className="text-gray-500 text-xs">
-              {formatDistanceToNow(new Date(value), { addSuffix: true })}
+              {formatDistanceToNow(new Date(value), { addSuffix: true, locale: fr })}
             </span>
           )}
         </div>

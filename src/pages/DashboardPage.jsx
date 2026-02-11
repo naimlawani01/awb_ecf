@@ -23,8 +23,11 @@ import {
   Building2,
   MapPin,
   Navigation,
+  Scale,
+  DollarSign,
 } from 'lucide-react'
 import { format, formatDistanceToNow } from 'date-fns'
+import { fr } from 'date-fns/locale'
 
 // Animated number component
 function AnimatedNumber({ value, duration = 1000 }) {
@@ -120,9 +123,9 @@ export default function DashboardPage() {
   
   const getGreeting = () => {
     const hour = new Date().getHours()
-    if (hour < 12) return 'Good morning'
-    if (hour < 18) return 'Good afternoon'
-    return 'Good evening'
+    if (hour < 12) return 'Bonjour'
+    if (hour < 18) return 'Bon après-midi'
+    return 'Bonsoir'
   }
   
   return (
@@ -138,7 +141,7 @@ export default function DashboardPage() {
               <ActivityPulse />
             </div>
             <p className="text-gray-400">
-              Here's what's happening with your cargo operations today.
+              Voici l'état de vos opérations cargo aujourd'hui.
             </p>
           </div>
           
@@ -146,10 +149,10 @@ export default function DashboardPage() {
             <div className="text-right hidden sm:block">
               <div className="flex items-center gap-2 text-sm text-gray-400">
                 <Calendar className="w-4 h-4" />
-                <span>{format(new Date(), 'EEEE, MMMM d, yyyy')}</span>
+                <span>{format(new Date(), 'EEEE d MMMM yyyy', { locale: fr })}</span>
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Last updated: {formatDistanceToNow(lastUpdated, { addSuffix: true })}
+                Mis à jour {formatDistanceToNow(lastUpdated, { addSuffix: true, locale: fr })}
               </p>
             </div>
             
@@ -157,7 +160,7 @@ export default function DashboardPage() {
               onClick={handleRefresh}
               disabled={isRefreshing}
               className="btn-secondary p-2.5 rounded-xl"
-              title="Refresh data"
+              title="Actualiser"
             >
               <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
             </button>
@@ -173,30 +176,50 @@ export default function DashboardPage() {
           icon={FileText}
           trend={stats?.mom_growth >= 0 ? 'up' : 'down'}
           trendValue={stats?.mom_growth}
-          subtitle="All AWB records"
+          subtitle="Tous les AWB"
           color="elite"
         />
         <StatCard
-          title="Total Shipments"
-          value={stats?.total_shipments || 0}
+          title="Total Pièces"
+          value={stats?.total_pieces || 0}
           icon={Package}
-          subtitle="Tracked shipments"
+          subtitle="Colis expédiés"
           color="success"
         />
         <StatCard
-          title="Active Contacts"
-          value={stats?.total_contacts || 0}
-          icon={Users}
-          subtitle="Shippers & consignees"
+          title="Poids Total"
+          value={`${((stats?.total_weight || 0) / 1000).toFixed(1)}t`}
+          icon={Scale}
+          subtitle={`${(stats?.total_weight || 0).toLocaleString()} kg`}
           color="gold"
         />
         <StatCard
-          title="Airlines & Airports"
-          value={(stats?.total_airlines || 0) + (stats?.total_airports || 0)}
-          icon={Plane}
-          subtitle={`${stats?.total_airlines || 0} airlines, ${stats?.total_airports || 0} airports`}
+          title="Chiffre d'Affaires"
+          value={`${((stats?.total_prepaid || 0) / 1000).toFixed(1)}k`}
+          icon={DollarSign}
+          subtitle={`${(stats?.total_prepaid || 0).toLocaleString()} ${stats?.main_currency || 'USD'}`}
           color="info"
         />
+      </div>
+      
+      {/* Secondary stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="glass-card p-4 text-center">
+          <p className="text-2xl font-bold text-white">{stats?.total_shipments || 0}</p>
+          <p className="text-xs text-gray-500">Expéditions</p>
+        </div>
+        <div className="glass-card p-4 text-center">
+          <p className="text-2xl font-bold text-white">{stats?.total_contacts || 0}</p>
+          <p className="text-xs text-gray-500">Contacts</p>
+        </div>
+        <div className="glass-card p-4 text-center">
+          <p className="text-2xl font-bold text-white">{stats?.total_airlines || 0}</p>
+          <p className="text-xs text-gray-500">Compagnies</p>
+        </div>
+        <div className="glass-card p-4 text-center">
+          <p className="text-2xl font-bold text-white">{stats?.total_airports || 0}</p>
+          <p className="text-xs text-gray-500">Aéroports</p>
+        </div>
       </div>
       
       {/* Quick stats with animated numbers */}
@@ -206,12 +229,12 @@ export default function DashboardPage() {
             <div className="p-2.5 rounded-xl bg-gradient-to-br from-elite-600/20 to-elite-600/5 group-hover:from-elite-600/30 group-hover:to-elite-600/10 transition-all">
               <Zap className="w-5 h-5 text-elite-400" />
             </div>
-            <span className="text-gray-400 font-medium">Today</span>
+            <span className="text-gray-400 font-medium">Aujourd'hui</span>
           </div>
           <p className="text-4xl font-bold text-white mb-1">
             <AnimatedNumber value={stats?.documents_today || 0} />
           </p>
-          <p className="text-sm text-gray-500">Documents created</p>
+          <p className="text-sm text-gray-500">Documents créés</p>
           <div className="mt-4 h-1 bg-elite-900/30 rounded-full overflow-hidden">
             <div 
               className="h-full bg-gradient-to-r from-elite-600 to-elite-400 rounded-full transition-all duration-1000"
@@ -225,12 +248,12 @@ export default function DashboardPage() {
             <div className="p-2.5 rounded-xl bg-gradient-to-br from-cargo-success/20 to-cargo-success/5 group-hover:from-cargo-success/30 group-hover:to-cargo-success/10 transition-all">
               <Activity className="w-5 h-5 text-cargo-success" />
             </div>
-            <span className="text-gray-400 font-medium">This Week</span>
+            <span className="text-gray-400 font-medium">Cette semaine</span>
           </div>
           <p className="text-4xl font-bold text-white mb-1">
             <AnimatedNumber value={stats?.documents_this_week || 0} />
           </p>
-          <p className="text-sm text-gray-500">Documents processed</p>
+          <p className="text-sm text-gray-500">Documents créés</p>
           <div className="mt-4 h-1 bg-elite-900/30 rounded-full overflow-hidden">
             <div 
               className="h-full bg-gradient-to-r from-cargo-success to-emerald-400 rounded-full transition-all duration-1000"
@@ -242,14 +265,14 @@ export default function DashboardPage() {
         <div className="glass-card p-6 hover-lift cursor-default group">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2.5 rounded-xl bg-gradient-to-br from-cargo-gold/20 to-cargo-gold/5 group-hover:from-cargo-gold/30 group-hover:to-cargo-gold/10 transition-all">
-              <Globe className="w-5 h-5 text-cargo-gold" />
+              <Calendar className="w-5 h-5 text-cargo-gold" />
             </div>
-            <span className="text-gray-400 font-medium">This Month</span>
+            <span className="text-gray-400 font-medium">Ce mois</span>
           </div>
           <p className="text-4xl font-bold text-white mb-1">
             <AnimatedNumber value={stats?.documents_this_month || 0} />
           </p>
-          <p className="text-sm text-gray-500">Total volume</p>
+          <p className="text-sm text-gray-500">Documents créés</p>
           <div className="mt-4 h-1 bg-elite-900/30 rounded-full overflow-hidden">
             <div 
               className="h-full bg-gradient-to-r from-cargo-gold to-amber-400 rounded-full transition-all duration-1000"
@@ -266,9 +289,9 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-elite-400" />
-              Document Trends
+              Évolution des documents
             </h3>
-            <span className="text-xs text-gray-500 bg-elite-900/30 px-2 py-1 rounded-full">Last 30 days</span>
+            <span className="text-xs text-gray-500 bg-elite-900/30 px-2 py-1 rounded-full">30 derniers jours</span>
           </div>
           {trends?.daily_trends?.length > 0 ? (
             <TrendChart
@@ -280,7 +303,7 @@ export default function DashboardPage() {
           ) : (
             <div className="h-72 flex flex-col items-center justify-center text-gray-500">
               <Activity className="w-12 h-12 mb-3 opacity-20" />
-              <p>No trend data available</p>
+              <p>Aucune donnée disponible</p>
             </div>
           )}
         </div>
@@ -290,7 +313,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
               <Package className="w-5 h-5 text-cargo-success" />
-              Status Distribution
+              Répartition par statut
             </h3>
           </div>
           {trends?.status_distribution?.length > 0 ? (
@@ -303,7 +326,7 @@ export default function DashboardPage() {
           ) : (
             <div className="h-72 flex flex-col items-center justify-center text-gray-500">
               <Package className="w-12 h-12 mb-3 opacity-20" />
-              <p>No status data available</p>
+              <p>Aucune donnée disponible</p>
             </div>
           )}
         </div>
@@ -316,13 +339,13 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
               <Building2 className="w-5 h-5 text-cargo-gold" />
-              Top Shippers
+              Top Expéditeurs
             </h3>
             <Link
               to="/documents"
               className="text-sm text-elite-400 hover:text-elite-300 flex items-center gap-1 group"
             >
-              View all documents
+              Voir tous
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
@@ -349,7 +372,7 @@ export default function DashboardPage() {
                       <span className="text-white font-medium truncate max-w-[160px] group-hover:text-elite-400 transition-colors">
                         {client.name}
                       </span>
-                      <span className="text-xs text-gray-500">{client.percentage}% of total</span>
+                      <span className="text-xs text-gray-500">{client.percentage}% du total</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -364,7 +387,7 @@ export default function DashboardPage() {
           ) : (
             <div className="py-12 text-center text-gray-500">
               <Users className="w-12 h-12 mx-auto mb-3 opacity-20" />
-              <p>No data available</p>
+              <p>Aucune donnée disponible</p>
             </div>
           )}
         </div>
@@ -374,13 +397,13 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
               <FileText className="w-5 h-5 text-elite-400" />
-              Recent Documents
+              Documents récents
             </h3>
             <Link
               to="/documents"
               className="text-sm text-elite-400 hover:text-elite-300 flex items-center gap-1 group"
             >
-              View all 
+              Voir tous
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
@@ -397,10 +420,10 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-white font-mono text-sm group-hover:text-elite-400 transition-colors">
-                        {doc.document_number || 'No number'}
+                        {doc.document_number || 'Sans numéro'}
                       </p>
                       <p className="text-gray-500 text-xs mt-1 truncate max-w-[220px]">
-                        {doc.shipper || 'Unknown'} → {doc.consignee || 'Unknown'}
+                        {doc.shipper || 'Inconnu'} → {doc.consignee || 'Inconnu'}
                       </p>
                     </div>
                     <div className="text-right">
@@ -411,7 +434,7 @@ export default function DashboardPage() {
                       </div>
                       {doc.created_at && (
                         <p className="text-xs text-gray-600 mt-1">
-                          {formatDistanceToNow(new Date(doc.created_at), { addSuffix: true })}
+                          {formatDistanceToNow(new Date(doc.created_at), { addSuffix: true, locale: fr })}
                         </p>
                       )}
                     </div>
@@ -422,7 +445,7 @@ export default function DashboardPage() {
           ) : (
             <div className="py-12 text-center text-gray-500">
               <FileText className="w-12 h-12 mx-auto mb-3 opacity-20" />
-              <p>No recent documents</p>
+              <p>Aucun document récent</p>
             </div>
           )}
         </div>
@@ -474,7 +497,7 @@ export default function DashboardPage() {
           ) : (
             <div className="py-12 text-center text-gray-500">
               <Navigation className="w-12 h-12 mx-auto mb-3 opacity-20" />
-              <p>No route data available</p>
+              <p>Aucune donnée disponible</p>
             </div>
           )}
         </div>
@@ -484,11 +507,11 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
               <Plane className="w-5 h-5 text-cargo-gold" />
-              Airlines (by AWB)
+              Compagnies aériennes
             </h3>
             {airlines?.total_awbs && (
               <span className="text-xs text-gray-500 bg-elite-900/30 px-2 py-1 rounded-full">
-                {airlines.total_awbs} total AWBs
+                {airlines.total_awbs} AWB au total
               </span>
             )}
           </div>
@@ -511,7 +534,7 @@ export default function DashboardPage() {
                     </span>
                     <div>
                       <p className="text-white font-medium">{airline.airline_name}</p>
-                      <p className="text-xs text-gray-500">{airline.percentage}% of shipments</p>
+                      <p className="text-xs text-gray-500">{airline.percentage}% des envois</p>
                     </div>
                   </div>
                   <span className="text-2xl font-bold text-white">{airline.count}</span>
@@ -521,7 +544,7 @@ export default function DashboardPage() {
           ) : (
             <div className="py-12 text-center text-gray-500">
               <Plane className="w-12 h-12 mx-auto mb-3 opacity-20" />
-              <p>No airline data available</p>
+              <p>Aucune donnée disponible</p>
             </div>
           )}
         </div>
@@ -536,7 +559,7 @@ export default function DashboardPage() {
               Top Destinations
             </h3>
             <span className="text-xs text-gray-500 bg-elite-900/30 px-2 py-1 rounded-full">
-              By shipment count
+              Par nombre d'envois
             </span>
           </div>
           <ComparisonBarChart
@@ -545,7 +568,7 @@ export default function DashboardPage() {
               count: d.count,
               percentage: d.percentage,
             }))}
-            bars={[{ dataKey: 'count', name: 'Shipments', color: '#037a6c' }]}
+            bars={[{ dataKey: 'count', name: 'Envois', color: '#037a6c' }]}
             xAxisKey="name"
             height={280}
           />

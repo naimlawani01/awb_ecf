@@ -9,7 +9,7 @@ export default function DataTable({
   pagination,
   onPageChange,
   onRowClick,
-  emptyMessage = 'No data found',
+  emptyMessage = 'Aucune donnée trouvée',
   sortBy,
   sortDir,
   onSort,
@@ -105,9 +105,9 @@ export default function DataTable({
       {pagination && (
         <div className="flex items-center justify-between px-4 py-4 border-t border-white/5">
           <p className="text-sm text-gray-400">
-            Showing {((pagination.page - 1) * pagination.page_size) + 1} to{' '}
-            {Math.min(pagination.page * pagination.page_size, pagination.total)} of{' '}
-            {pagination.total.toLocaleString()} results
+            Affichage de {((pagination.page - 1) * pagination.page_size) + 1} à{' '}
+            {Math.min(pagination.page * pagination.page_size, pagination.total)} sur{' '}
+            {pagination.total.toLocaleString()} résultats
           </p>
           
           <div className="flex items-center gap-2">
@@ -127,7 +127,7 @@ export default function DataTable({
             </button>
             
             <span className="px-3 py-1 text-sm text-white">
-              Page {pagination.page} of {pagination.total_pages}
+              Page {pagination.page} sur {pagination.total_pages}
             </span>
             
             <button

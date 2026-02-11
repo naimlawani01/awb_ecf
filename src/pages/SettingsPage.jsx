@@ -16,8 +16,8 @@ export default function SettingsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   
   const tabs = [
-    { id: 'profile', label: 'Profile', icon: User },
-    { id: 'security', label: 'Security', icon: Shield },
+    { id: 'profile', label: 'Profil', icon: User },
+    { id: 'security', label: 'Sécurité', icon: Shield },
     ...(isAdmin ? [{ id: 'admin', label: 'Administration', icon: Database }] : []),
   ]
   
@@ -25,12 +25,12 @@ export default function SettingsPage() {
     e.preventDefault()
     
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error('Passwords do not match')
+      toast.error('Les mots de passe ne correspondent pas')
       return
     }
     
     if (passwordForm.newPassword.length < 8) {
-      toast.error('Password must be at least 8 characters')
+      toast.error('Le mot de passe doit contenir au moins 8 caractères')
       return
     }
     
@@ -40,14 +40,14 @@ export default function SettingsPage() {
         passwordForm.currentPassword,
         passwordForm.newPassword
       )
-      toast.success('Password changed successfully')
+      toast.success('Mot de passe modifié avec succès')
       setPasswordForm({
         currentPassword: '',
         newPassword: '',
         confirmPassword: '',
       })
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to change password')
+      toast.error(error.response?.data?.detail || 'Échec du changement de mot de passe')
     } finally {
       setIsSubmitting(false)
     }
@@ -62,10 +62,10 @@ export default function SettingsPage() {
         </div>
         <div>
           <h1 className="text-2xl font-display font-bold text-white">
-            Settings
+            Paramètres
           </h1>
           <p className="text-gray-400 text-sm">
-            Manage your account and preferences
+            Gérez votre compte et vos préférences
           </p>
         </div>
       </div>
@@ -100,7 +100,7 @@ export default function SettingsPage() {
           {activeTab === 'profile' && (
             <div className="glass-card p-6">
               <h2 className="text-lg font-display font-semibold text-white mb-6">
-                Profile Information
+                Informations du profil
               </h2>
               
               <div className="space-y-6">
@@ -121,7 +121,7 @@ export default function SettingsPage() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-2">Username</label>
+                    <label className="block text-sm text-gray-400 mb-2">Nom d'utilisateur</label>
                     <input
                       type="text"
                       value={user?.username || ''}
@@ -139,7 +139,7 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-2">First Name</label>
+                    <label className="block text-sm text-gray-400 mb-2">Prénom</label>
                     <input
                       type="text"
                       value={user?.first_name || ''}
@@ -148,7 +148,7 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-2">Last Name</label>
+                    <label className="block text-sm text-gray-400 mb-2">Nom</label>
                     <input
                       type="text"
                       value={user?.last_name || ''}
@@ -159,7 +159,7 @@ export default function SettingsPage() {
                 </div>
                 
                 <p className="text-sm text-gray-500">
-                  Contact an administrator to update your profile information.
+                  Contactez un administrateur pour modifier vos informations de profil.
                 </p>
               </div>
             </div>
@@ -169,13 +169,13 @@ export default function SettingsPage() {
             <div className="glass-card p-6">
               <h2 className="text-lg font-display font-semibold text-white mb-6 flex items-center gap-2">
                 <Key className="w-5 h-5 text-elite-400" />
-                Change Password
+                Changer le mot de passe
               </h2>
               
               <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
                 <div>
                   <label className="block text-sm text-gray-400 mb-2">
-                    Current Password
+                    Mot de passe actuel
                   </label>
                   <input
                     type="password"
@@ -190,7 +190,7 @@ export default function SettingsPage() {
                 
                 <div>
                   <label className="block text-sm text-gray-400 mb-2">
-                    New Password
+                    Nouveau mot de passe
                   </label>
                   <input
                     type="password"
@@ -203,13 +203,13 @@ export default function SettingsPage() {
                     required
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Minimum 8 characters
+                    Minimum 8 caractères
                   </p>
                 </div>
                 
                 <div>
                   <label className="block text-sm text-gray-400 mb-2">
-                    Confirm New Password
+                    Confirmer le nouveau mot de passe
                   </label>
                   <input
                     type="password"
@@ -227,7 +227,7 @@ export default function SettingsPage() {
                   disabled={isSubmitting}
                   className="btn-primary"
                 >
-                  {isSubmitting ? 'Changing...' : 'Change Password'}
+                  {isSubmitting ? 'Modification...' : 'Changer le mot de passe'}
                 </button>
               </form>
             </div>
@@ -238,28 +238,28 @@ export default function SettingsPage() {
               <div className="glass-card p-6">
                 <h2 className="text-lg font-display font-semibold text-white mb-6 flex items-center gap-2">
                   <Database className="w-5 h-5 text-elite-400" />
-                  Database Connection
+                  Connexion à la base de données
                 </h2>
                 
                 <div className="space-y-4">
                   <div className="p-4 rounded-lg bg-cargo-success/10 border border-cargo-success/20">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-cargo-success animate-pulse" />
-                      <span className="text-cargo-success font-medium">Connected</span>
+                      <span className="text-cargo-success font-medium">Connectée</span>
                     </div>
                     <p className="text-sm text-gray-400 mt-2">
-                      AWB Editor database is connected and operational
+                      La base de données AWB Editor est connectée et opérationnelle
                     </p>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="p-4 rounded-lg bg-white/5">
-                      <p className="text-sm text-gray-400">Database Type</p>
+                      <p className="text-sm text-gray-400">Type de base</p>
                       <p className="text-white font-medium">PostgreSQL</p>
                     </div>
                     <div className="p-4 rounded-lg bg-white/5">
-                      <p className="text-sm text-gray-400">Access Mode</p>
-                      <p className="text-white font-medium">Read Only</p>
+                      <p className="text-sm text-gray-400">Mode d'accès</p>
+                      <p className="text-white font-medium">Lecture seule</p>
                     </div>
                   </div>
                 </div>
@@ -267,16 +267,16 @@ export default function SettingsPage() {
               
               <div className="glass-card p-6">
                 <h2 className="text-lg font-display font-semibold text-white mb-6">
-                  System Information
+                  Informations système
                 </h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 rounded-lg bg-white/5">
-                    <p className="text-sm text-gray-400">Platform Version</p>
+                    <p className="text-sm text-gray-400">Version de la plateforme</p>
                     <p className="text-white font-medium">1.0.0</p>
                   </div>
                   <div className="p-4 rounded-lg bg-white/5">
-                    <p className="text-sm text-gray-400">API Version</p>
+                    <p className="text-sm text-gray-400">Version API</p>
                     <p className="text-white font-medium">v1</p>
                   </div>
                 </div>

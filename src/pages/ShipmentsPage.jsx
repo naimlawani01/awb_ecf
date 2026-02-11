@@ -8,8 +8,8 @@ import { format } from 'date-fns'
 import clsx from 'clsx'
 
 const importExportOptions = [
-  { value: '1', label: 'Import' },
-  { value: '2', label: 'Export' },
+  { value: '1', label: 'Importation' },
+  { value: '2', label: 'Exportation' },
   { value: '3', label: 'Transit' },
 ]
 
@@ -50,21 +50,21 @@ export default function ShipmentsPage() {
   const columns = [
     {
       key: 'master_number',
-      label: 'Master Number',
+      label: 'N° Master',
       render: (value) => (
         <span className="font-mono text-elite-400">{value || '-'}</span>
       ),
     },
     {
       key: 'house_number',
-      label: 'House Number',
+      label: 'N° House',
       render: (value) => (
         <span className="font-mono text-white">{value || '-'}</span>
       ),
     },
     {
       key: 'shipper',
-      label: 'Shipper',
+      label: 'Expéditeur',
       render: (value) => (
         <span className="text-white truncate max-w-[150px] block">
           {value || '-'}
@@ -73,7 +73,7 @@ export default function ShipmentsPage() {
     },
     {
       key: 'consignee',
-      label: 'Consignee',
+      label: 'Destinataire',
       render: (value) => (
         <span className="text-white truncate max-w-[150px] block">
           {value || '-'}
@@ -82,7 +82,7 @@ export default function ShipmentsPage() {
     },
     {
       key: 'origin',
-      label: 'Origin',
+      label: 'Origine',
       render: (value) => (
         <span className="text-gray-300">{value || '-'}</span>
       ),
@@ -101,7 +101,7 @@ export default function ShipmentsPage() {
     },
     {
       key: 'event_status',
-      label: 'Status',
+      label: 'Statut',
       render: (value) => (
         <span className="text-gray-400">{value || '-'}</span>
       ),
@@ -111,7 +111,7 @@ export default function ShipmentsPage() {
       label: 'Date',
       render: (value) => (
         <span className="text-gray-400">
-          {value ? format(new Date(value), 'MMM d, yyyy') : '-'}
+          {value ? format(new Date(value), 'dd/MM/yyyy') : '-'}
         </span>
       ),
     },
@@ -131,10 +131,10 @@ export default function ShipmentsPage() {
           </div>
           <div>
             <h1 className="text-2xl font-display font-bold text-white">
-              Shipments
+              Expéditions
             </h1>
             <p className="text-gray-400 text-sm">
-              {data?.total?.toLocaleString() || 0} total shipments
+              {data?.total?.toLocaleString() || 0} expéditions au total
             </p>
           </div>
         </div>
@@ -144,7 +144,7 @@ export default function ShipmentsPage() {
           className="btn-secondary flex items-center gap-2"
         >
           <RefreshCw className="w-4 h-4" />
-          Refresh
+          Actualiser
         </button>
       </div>
       
@@ -158,7 +158,7 @@ export default function ShipmentsPage() {
                 setFilters({ ...filters, master_number: value })
                 setPage(1)
               }}
-              placeholder="Search by master number..."
+              placeholder="Rechercher par numéro master..."
             />
           </div>
           
@@ -170,7 +170,7 @@ export default function ShipmentsPage() {
             )}
           >
             <Filter className="w-4 h-4" />
-            Filters
+            Filtres
             {activeFilterCount > 0 && (
               <span className="px-2 py-0.5 bg-elite-400/20 text-elite-400 text-xs rounded-full">
                 {activeFilterCount}
@@ -183,38 +183,38 @@ export default function ShipmentsPage() {
           <div className="mt-4 pt-4 border-t border-white/5 animate-slide-down">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Shipper</label>
+                <label className="block text-sm text-gray-400 mb-2">Expéditeur</label>
                 <SearchInput
                   value={filters.shipper}
                   onChange={(value) => {
                     setFilters({ ...filters, shipper: value })
                     setPage(1)
                   }}
-                  placeholder="Shipper name..."
+                  placeholder="Nom de l'expéditeur..."
                 />
               </div>
               
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Consignee</label>
+                <label className="block text-sm text-gray-400 mb-2">Destinataire</label>
                 <SearchInput
                   value={filters.consignee}
                   onChange={(value) => {
                     setFilters({ ...filters, consignee: value })
                     setPage(1)
                   }}
-                  placeholder="Consignee name..."
+                  placeholder="Nom du destinataire..."
                 />
               </div>
               
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Origin</label>
+                <label className="block text-sm text-gray-400 mb-2">Origine</label>
                 <SearchInput
                   value={filters.origin}
                   onChange={(value) => {
                     setFilters({ ...filters, origin: value })
                     setPage(1)
                   }}
-                  placeholder="Airport code..."
+                  placeholder="Code aéroport..."
                 />
               </div>
               
@@ -227,7 +227,7 @@ export default function ShipmentsPage() {
                     setPage(1)
                   }}
                   options={importExportOptions}
-                  placeholder="All types"
+                  placeholder="Tous les types"
                 />
               </div>
             </div>
@@ -247,7 +247,7 @@ export default function ShipmentsPage() {
           total_pages: data.total_pages,
         } : null}
         onPageChange={setPage}
-        emptyMessage="No shipments found matching your criteria"
+        emptyMessage="Aucune expédition trouvée correspondant à vos critères"
       />
     </div>
   )

@@ -34,22 +34,22 @@ function EliteLogo({ className = "w-full h-full" }) {
 }
 
 const navItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, shortcut: '1' },
+  { path: '/dashboard', label: 'Tableau de bord', icon: LayoutDashboard, shortcut: '1' },
   { path: '/documents', label: 'Documents', icon: FileText, shortcut: '2' },
-  { path: '/shipments', label: 'Shipments', icon: Package, shortcut: '3' },
+  { path: '/shipments', label: 'Expéditions', icon: Package, shortcut: '3' },
   { path: '/contacts', label: 'Contacts', icon: Users, shortcut: '4' },
-  { path: '/reports', label: 'Reports', icon: BarChart3, shortcut: '5' },
-  { path: '/settings', label: 'Settings', icon: Settings, shortcut: '6' },
+  { path: '/reports', label: 'Rapports', icon: BarChart3, shortcut: '5' },
+  { path: '/settings', label: 'Paramètres', icon: Settings, shortcut: '6' },
 ]
 
 // Breadcrumb configuration
 const breadcrumbLabels = {
-  dashboard: 'Dashboard',
+  dashboard: 'Tableau de bord',
   documents: 'Documents',
-  shipments: 'Shipments',
+  shipments: 'Expéditions',
   contacts: 'Contacts',
-  reports: 'Reports',
-  settings: 'Settings',
+  reports: 'Rapports',
+  settings: 'Paramètres',
 }
 
 function Breadcrumbs() {
@@ -122,7 +122,7 @@ function CommandPalette({ isOpen, onClose }) {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Type a command or search..."
+            placeholder="Tapez une commande ou recherchez..."
             className="flex-1 bg-transparent text-white placeholder:text-gray-500 outline-none"
             autoFocus
           />
@@ -153,21 +153,21 @@ function CommandPalette({ isOpen, onClose }) {
               )
             })
           ) : (
-            <p className="px-4 py-6 text-center text-gray-500">No results found</p>
+            <p className="px-4 py-6 text-center text-gray-500">Aucun résultat trouvé</p>
           )}
         </div>
         
         <div className="px-4 py-3 border-t border-elite-800/50 flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 bg-elite-900/50 rounded">↵</kbd> to select
+              <kbd className="px-1.5 py-0.5 bg-elite-900/50 rounded">↵</kbd> sélectionner
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 bg-elite-900/50 rounded">↑↓</kbd> to navigate
+              <kbd className="px-1.5 py-0.5 bg-elite-900/50 rounded">↑↓</kbd> naviguer
             </span>
           </div>
           <span className="flex items-center gap-1">
-            <Command className="w-3 h-3" /> + K to open
+            <Command className="w-3 h-3" /> + K ouvrir
           </span>
         </div>
       </div>
@@ -180,11 +180,11 @@ function KeyboardShortcutsHelp({ isOpen, onClose }) {
   if (!isOpen) return null
   
   const shortcuts = [
-    { keys: ['⌘', 'K'], description: 'Open command palette' },
-    { keys: ['⌘', '1-6'], description: 'Navigate to section' },
-    { keys: ['⌘', '/'], description: 'Show keyboard shortcuts' },
-    { keys: ['⌘', 'B'], description: 'Toggle sidebar' },
-    { keys: ['Esc'], description: 'Close modal / Clear search' },
+    { keys: ['⌘', 'K'], description: 'Ouvrir la palette de commandes' },
+    { keys: ['⌘', '1-6'], description: 'Naviguer vers une section' },
+    { keys: ['⌘', '/'], description: 'Afficher les raccourcis clavier' },
+    { keys: ['⌘', 'B'], description: 'Afficher/masquer la barre latérale' },
+    { keys: ['Esc'], description: 'Fermer / Effacer la recherche' },
   ]
   
   return (
@@ -197,7 +197,7 @@ function KeyboardShortcutsHelp({ isOpen, onClose }) {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             <Keyboard className="w-5 h-5 text-elite-400" />
-            Keyboard Shortcuts
+            Raccourcis clavier
           </h2>
           <button
             onClick={onClose}
@@ -425,7 +425,7 @@ export default function Layout() {
             <button
               className="hidden lg:flex p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-elite-900/40"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              title={sidebarCollapsed ? 'Agrandir la barre latérale' : 'Réduire la barre latérale'}
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -438,7 +438,7 @@ export default function Layout() {
               <div className="relative w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                 <div className="input-field pl-10 pr-20 text-left text-gray-500 cursor-pointer hover:border-elite-700/50 transition-colors">
-                  Search or type a command...
+                  Rechercher ou taper une commande...
                 </div>
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
                   <kbd className="px-1.5 py-0.5 text-xs text-gray-500 bg-elite-900/50 rounded border border-elite-800/50">
@@ -464,7 +464,7 @@ export default function Layout() {
               <button
                 onClick={() => setShortcutsHelpOpen(true)}
                 className="hidden lg:flex p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-elite-900/40"
-                title="Keyboard shortcuts"
+                title="Raccourcis clavier"
               >
                 <Keyboard className="w-5 h-5" />
               </button>

@@ -44,12 +44,12 @@ export default function DocumentDetailPage() {
   if (error || !document) {
     return (
       <div className="glass-card p-8 text-center">
-        <p className="text-gray-400">Document not found</p>
+        <p className="text-gray-400">Document introuvable</p>
         <button
           onClick={() => navigate('/documents')}
           className="btn-primary mt-4"
         >
-          Back to Documents
+          Retour aux documents
         </button>
       </div>
     )
@@ -71,7 +71,7 @@ export default function DocumentDetailPage() {
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-display font-bold text-white">
-              {document.document_number || 'Document Details'}
+              {document.document_number || 'Détails du document'}
             </h1>
             <span className={clsx('badge', status.class)}>{status.label}</span>
           </div>
@@ -89,24 +89,24 @@ export default function DocumentDetailPage() {
           <div className="glass-card p-6">
             <h3 className="text-lg font-display font-semibold text-white mb-4 flex items-center gap-2">
               <FileText className="w-5 h-5 text-elite-400" />
-              Document Information
+              Informations du document
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-gray-500">Document Number</label>
+                <label className="text-sm text-gray-500">N° de document</label>
                 <p className="text-white font-mono">{document.document_number || '-'}</p>
               </div>
               <div>
-                <label className="text-sm text-gray-500">Master Document Number</label>
+                <label className="text-sm text-gray-500">N° de document master</label>
                 <p className="text-white font-mono">{document.master_document_number || '-'}</p>
               </div>
               <div>
-                <label className="text-sm text-gray-500">Reference Number</label>
+                <label className="text-sm text-gray-500">N° de référence</label>
                 <p className="text-white">{document.reference_number || '-'}</p>
               </div>
               <div>
-                <label className="text-sm text-gray-500">Station ID</label>
+                <label className="text-sm text-gray-500">ID Station</label>
                 <p className="text-white">{document.station_id}</p>
               </div>
             </div>
@@ -116,17 +116,17 @@ export default function DocumentDetailPage() {
           <div className="glass-card p-6">
             <h3 className="text-lg font-display font-semibold text-white mb-4 flex items-center gap-2">
               <User className="w-5 h-5 text-elite-400" />
-              Parties
+              Parties prenantes
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="p-4 rounded-lg bg-white/5">
-                <label className="text-sm text-elite-400 font-medium">Shipper</label>
-                <p className="text-white mt-1">{document.shipper || 'Not specified'}</p>
+                <label className="text-sm text-elite-400 font-medium">Expéditeur</label>
+                <p className="text-white mt-1">{document.shipper || 'Non spécifié'}</p>
               </div>
               <div className="p-4 rounded-lg bg-white/5">
-                <label className="text-sm text-elite-400 font-medium">Consignee</label>
-                <p className="text-white mt-1">{document.consignee || 'Not specified'}</p>
+                <label className="text-sm text-elite-400 font-medium">Destinataire</label>
+                <p className="text-white mt-1">{document.consignee || 'Non spécifié'}</p>
               </div>
             </div>
           </div>
@@ -135,7 +135,7 @@ export default function DocumentDetailPage() {
           <div className="glass-card p-6">
             <h3 className="text-lg font-display font-semibold text-white mb-4 flex items-center gap-2">
               <MapPin className="w-5 h-5 text-elite-400" />
-              Route Information
+              Informations de route
             </h3>
             
             <div className="flex items-center justify-center gap-8">
@@ -208,7 +208,7 @@ export default function DocumentDetailPage() {
             <div className="glass-card p-6">
               <h3 className="text-lg font-display font-semibold text-white mb-4 flex items-center gap-2">
                 <Receipt className="w-5 h-5 text-elite-400" />
-                Rate Description
+                Description des tarifs
               </h3>
               
               {/* Items table */}
@@ -296,14 +296,14 @@ export default function DocumentDetailPage() {
                   {/* Table header */}
                   <div className="grid grid-cols-3 gap-2 text-xs text-gray-500 uppercase tracking-wider mb-2 pb-2 border-b border-white/10">
                     <span></span>
-                    <span className="text-center">Prepaid</span>
-                    <span className="text-center">Collect</span>
+                    <span className="text-center">Prépayé</span>
+                    <span className="text-center">Dû</span>
                   </div>
                   
                   {/* Weight Charge */}
                   {(awbDetails.charges_summary.weight_charge_prepaid > 0 || awbDetails.charges_summary.weight_charge_collect > 0) && (
                     <div className="grid grid-cols-3 gap-2 text-sm py-1">
-                      <span className="text-gray-400">Weight Charge</span>
+                      <span className="text-gray-400">Frais de poids</span>
                       <span className="text-white font-mono text-center">{awbDetails.charges_summary.weight_charge_prepaid > 0 ? awbDetails.charges_summary.weight_charge_prepaid.toFixed(2) : '-'}</span>
                       <span className="text-white font-mono text-center">{awbDetails.charges_summary.weight_charge_collect > 0 ? awbDetails.charges_summary.weight_charge_collect.toFixed(2) : '-'}</span>
                     </div>
@@ -312,7 +312,7 @@ export default function DocumentDetailPage() {
                   {/* Valuation Charge */}
                   {(awbDetails.charges_summary.valuation_charge_prepaid > 0 || awbDetails.charges_summary.valuation_charge_collect > 0) && (
                     <div className="grid grid-cols-3 gap-2 text-sm py-1">
-                      <span className="text-gray-400">Valuation Charge</span>
+                      <span className="text-gray-400">Frais de valeur</span>
                       <span className="text-white font-mono text-center">{awbDetails.charges_summary.valuation_charge_prepaid > 0 ? awbDetails.charges_summary.valuation_charge_prepaid.toFixed(2) : '-'}</span>
                       <span className="text-white font-mono text-center">{awbDetails.charges_summary.valuation_charge_collect > 0 ? awbDetails.charges_summary.valuation_charge_collect.toFixed(2) : '-'}</span>
                     </div>
@@ -321,7 +321,7 @@ export default function DocumentDetailPage() {
                   {/* Tax */}
                   {(awbDetails.charges_summary.tax_prepaid > 0 || awbDetails.charges_summary.tax_collect > 0) && (
                     <div className="grid grid-cols-3 gap-2 text-sm py-1">
-                      <span className="text-gray-400">Tax</span>
+                      <span className="text-gray-400">Taxe</span>
                       <span className="text-white font-mono text-center">{awbDetails.charges_summary.tax_prepaid > 0 ? awbDetails.charges_summary.tax_prepaid.toFixed(2) : '-'}</span>
                       <span className="text-white font-mono text-center">{awbDetails.charges_summary.tax_collect > 0 ? awbDetails.charges_summary.tax_collect.toFixed(2) : '-'}</span>
                     </div>
@@ -330,7 +330,7 @@ export default function DocumentDetailPage() {
                   {/* Other Charges Due Agent */}
                   {(awbDetails.charges_summary.other_due_agent_prepaid > 0 || awbDetails.charges_summary.other_due_agent_collect > 0) && (
                     <div className="grid grid-cols-3 gap-2 text-sm py-1">
-                      <span className="text-gray-400">Other Due Agent</span>
+                      <span className="text-gray-400">Autres frais agent</span>
                       <span className="text-white font-mono text-center">{awbDetails.charges_summary.other_due_agent_prepaid > 0 ? awbDetails.charges_summary.other_due_agent_prepaid.toFixed(2) : '-'}</span>
                       <span className="text-white font-mono text-center">{awbDetails.charges_summary.other_due_agent_collect > 0 ? awbDetails.charges_summary.other_due_agent_collect.toFixed(2) : '-'}</span>
                     </div>
@@ -339,7 +339,7 @@ export default function DocumentDetailPage() {
                   {/* Other Charges Due Carrier */}
                   {(awbDetails.charges_summary.other_due_carrier_prepaid > 0 || awbDetails.charges_summary.other_due_carrier_collect > 0) && (
                     <div className="grid grid-cols-3 gap-2 text-sm py-1">
-                      <span className="text-gray-400">Other Due Carrier</span>
+                      <span className="text-gray-400">Autres frais transporteur</span>
                       <span className="text-white font-mono text-center">{awbDetails.charges_summary.other_due_carrier_prepaid > 0 ? awbDetails.charges_summary.other_due_carrier_prepaid.toFixed(2) : '-'}</span>
                       <span className="text-white font-mono text-center">{awbDetails.charges_summary.other_due_carrier_collect > 0 ? awbDetails.charges_summary.other_due_carrier_collect.toFixed(2) : '-'}</span>
                     </div>
@@ -479,13 +479,13 @@ export default function DocumentDetailPage() {
               <div className="space-y-4">
                 {awbDetails.signatures.shipper && (
                   <div className="p-3 rounded-lg bg-white/5">
-                    <label className="text-xs text-gray-500 uppercase tracking-wide">Shipper's Certification</label>
+                    <label className="text-xs text-gray-500 uppercase tracking-wide">Certification expéditeur</label>
                     <p className="text-white mt-2">{awbDetails.signatures.shipper}</p>
                   </div>
                 )}
                 {awbDetails.signatures.carrier && (
                   <div className="p-3 rounded-lg bg-white/5">
-                    <label className="text-xs text-gray-500 uppercase tracking-wide">Carrier's Certification</label>
+                    <label className="text-xs text-gray-500 uppercase tracking-wide">Certification transporteur</label>
                     <p className="text-white mt-2">{awbDetails.signatures.carrier}</p>
                     {(awbDetails.signatures.place || awbDetails.signatures.date) && (
                       <p className="text-gray-400 text-sm mt-2">
@@ -505,7 +505,7 @@ export default function DocumentDetailPage() {
             <div className="glass-card p-6">
               <h3 className="text-lg font-display font-semibold text-white mb-4 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-elite-400" />
-                Issued By
+                Émis par
               </h3>
               <p className="text-white whitespace-pre-line">{awbDetails.issued_by}</p>
             </div>

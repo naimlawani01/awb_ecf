@@ -8,11 +8,11 @@ import { Users, RefreshCw, Filter } from 'lucide-react'
 import clsx from 'clsx'
 
 const contactTypeOptions = [
-  { value: '1', label: 'Shipper' },
-  { value: '2', label: 'Consignee' },
+  { value: '1', label: 'Expéditeur' },
+  { value: '2', label: 'Destinataire' },
   { value: '3', label: 'Agent' },
-  { value: '4', label: 'Notify Party' },
-  { value: '5', label: 'Freight Forwarder' },
+  { value: '4', label: 'Partie notifiée' },
+  { value: '5', label: 'Transitaire' },
 ]
 
 const getTypeBadge = (type, typeName) => {
@@ -55,14 +55,14 @@ export default function ContactsPage() {
   const columns = [
     {
       key: 'display_name',
-      label: 'Name',
+      label: 'Nom',
       render: (value) => (
         <span className="text-white font-medium">{value || '-'}</span>
       ),
     },
     {
       key: 'account_number',
-      label: 'Account Number',
+      label: 'N° de compte',
       render: (value) => (
         <span className="font-mono text-gray-300">{value || '-'}</span>
       ),
@@ -91,7 +91,7 @@ export default function ContactsPage() {
               Contacts
             </h1>
             <p className="text-gray-400 text-sm">
-              {data?.total?.toLocaleString() || 0} total contacts
+              {data?.total?.toLocaleString() || 0} contacts au total
             </p>
           </div>
         </div>
@@ -101,7 +101,7 @@ export default function ContactsPage() {
           className="btn-secondary flex items-center gap-2"
         >
           <RefreshCw className="w-4 h-4" />
-          Refresh
+          Actualiser
         </button>
       </div>
       
@@ -115,7 +115,7 @@ export default function ContactsPage() {
                 setFilters({ ...filters, display_name: value })
                 setPage(1)
               }}
-              placeholder="Search by name..."
+              placeholder="Rechercher par nom..."
             />
           </div>
           
@@ -127,7 +127,7 @@ export default function ContactsPage() {
             )}
           >
             <Filter className="w-4 h-4" />
-            Filters
+            Filtres
             {activeFilterCount > 0 && (
               <span className="px-2 py-0.5 bg-elite-400/20 text-elite-400 text-xs rounded-full">
                 {activeFilterCount}
@@ -140,19 +140,19 @@ export default function ContactsPage() {
           <div className="mt-4 pt-4 border-t border-white/5 animate-slide-down">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Account Number</label>
+                <label className="block text-sm text-gray-400 mb-2">N° de compte</label>
                 <SearchInput
                   value={filters.account_number}
                   onChange={(value) => {
                     setFilters({ ...filters, account_number: value })
                     setPage(1)
                   }}
-                  placeholder="Account number..."
+                  placeholder="Numéro de compte..."
                 />
               </div>
               
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Contact Type</label>
+                <label className="block text-sm text-gray-400 mb-2">Type de contact</label>
                 <SelectFilter
                   value={filters.contact_type}
                   onChange={(value) => {
@@ -160,7 +160,7 @@ export default function ContactsPage() {
                     setPage(1)
                   }}
                   options={contactTypeOptions}
-                  placeholder="All types"
+                  placeholder="Tous les types"
                 />
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function ContactsPage() {
         } : null}
         onPageChange={setPage}
         onRowClick={(row) => navigate(`/contacts/${row.id}`)}
-        emptyMessage="No contacts found matching your criteria"
+        emptyMessage="Aucun contact trouvé correspondant à vos critères"
       />
     </div>
   )

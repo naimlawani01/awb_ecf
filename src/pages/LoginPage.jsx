@@ -162,10 +162,10 @@ export default function LoginPage() {
           
           <div className="glass-card p-8 hover:border-elite-700/30 transition-all duration-500">
             <h2 className="text-2xl font-bold text-white mb-2">
-              Welcome back
+              Bienvenue
             </h2>
             <p className="text-gray-400 mb-8">
-              Sign in to access your dashboard
+              Connectez-vous pour accéder à votre tableau de bord
             </p>
             
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -177,14 +177,14 @@ export default function LoginPage() {
               
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-300">
-                  Username
+                  Nom d'utilisateur
                 </label>
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="input-field transition-all duration-300 focus:shadow-lg focus:shadow-elite-600/10"
-                  placeholder="Enter your username"
+                  placeholder="Entrez votre nom d'utilisateur"
                   disabled={isLoading}
                   autoComplete="username"
                 />
@@ -192,7 +192,7 @@ export default function LoginPage() {
               
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-300">
-                  Password
+                  Mot de passe
                 </label>
                 <div className="relative">
                   <input
@@ -200,7 +200,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="input-field pr-12 transition-all duration-300 focus:shadow-lg focus:shadow-elite-600/10"
-                    placeholder="Enter your password"
+                    placeholder="Entrez votre mot de passe"
                     disabled={isLoading}
                     autoComplete="current-password"
                   />
@@ -226,10 +226,10 @@ export default function LoginPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Signing in...</span>
+                    <span>Connexion...</span>
                   </>
                 ) : (
-                  <span>Sign in</span>
+                  <span>Se connecter</span>
                 )}
               </button>
             </form>
@@ -242,7 +242,7 @@ export default function LoginPage() {
           </div>
           
           <p className="mt-8 text-center text-sm text-gray-500">
-            © {new Date().getFullYear()} Elite Cargo. All rights reserved.
+            © {new Date().getFullYear()} Elite Cargo. Tous droits réservés.
           </p>
         </div>
       </div>
