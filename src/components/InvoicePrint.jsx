@@ -21,22 +21,22 @@ export default function InvoicePrint({ documentData, awbDetails, amountUSD, usdT
           <meta charset="utf-8">
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.4; color: #000; padding: 24px; max-width: 210mm; }
-            .header { margin-bottom: 24px; font-size: 14pt; }
+            body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.4; color: #000; padding: 24px; max-width: 210mm; }
+            .header { margin-bottom: 24px; font-size: 14pt; font-family: 'Times New Roman', Times, serif; }
             .invoice-title { font-size: 14pt; font-weight: bold; margin-bottom: 8px; }
             .invoice-number { font-size: 14pt; font-weight: bold; margin-bottom: 16px; }
-            .client-block { margin: 16px 0; padding: 12px; border: 1px solid #333; font-size: 12pt; }
+            .client-block { margin: 16px 0; padding: 0; font-size: 12pt; text-align: right; font-family: 'Times New Roman', Times, serif; }
             .client-label { font-weight: bold; margin-bottom: 4px; }
-            .section { margin: 12px 0; font-size: 12pt; }
+            .section { margin: 12px 0; font-size: 12pt; font-family: 'Times New Roman', Times, serif; }
             .section-label { font-weight: bold; margin-bottom: 4px; }
-            table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 12pt; }
+            table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 12pt; font-family: 'Times New Roman', Times, serif; }
             th, td { border: 1px solid #333; padding: 8px; text-align: left; }
             th { background: #f0f0f0; font-weight: bold; }
             .text-right { text-align: right; }
             .total-row { font-weight: bold; background: #f5f5f5; }
-            .amount-payer { margin: 16px 0; font-size: 12pt; }
-            .amount-in-words { font-style: italic; margin: 16px 0; font-size: 12pt; }
-            .signature { margin-top: 48px; text-align: right; font-size: 12pt; }
+            .amount-payer { margin: 16px 0; font-size: 12pt; font-family: 'Times New Roman', Times, serif; }
+            .amount-in-words { font-style: italic; margin: 16px 0; font-size: 12pt; font-family: 'Times New Roman', Times, serif; }
+            .signature { margin-top: 48px; text-align: right; font-size: 12pt; font-family: 'Times New Roman', Times, serif; }
           </style>
         </head>
         <body>${content}</body>
