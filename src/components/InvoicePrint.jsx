@@ -88,9 +88,8 @@ export default function InvoicePrint({ documentData, awbDetails, amountUSD, usdT
   const clientAddress = awbDetails?.consignee_details || ''
 
   const ref = documentData.reference_number || ''
-  const docDate = documentData.document_date ? new Date(documentData.document_date) : new Date()
-  const datePart = format(docDate, 'dd/MM/yy')
-  const invoiceNumber = ref ? `${ref}/EC/JA/${datePart}` : '-'
+  const docDateForRef = documentData.document_date ? format(new Date(documentData.document_date), 'dd/MM/yy') : format(new Date(), 'dd/MM/yy')
+  const invoiceNumber = ref ? `${ref}/EC/JA/${docDateForRef}` : '-'
 
   const natureDescription = items.length > 0
     ? items.map((it) => `${it.nature || 'Marchandises'}`).filter(Boolean)[0] || 'Transport aérien'
