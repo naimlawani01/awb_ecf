@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useDocument, useDocumentLogs, useDocumentDetails } from '../hooks/useDocuments'
 import LoadingSpinner from '../components/LoadingSpinner'
 import InvoicePrint from '../components/InvoicePrint'
+import InvoiceEditModal from '../components/InvoiceEditModal'
 import { 
   ArrowLeft, FileText, User, MapPin, Calendar, Clock, Tag, 
   Package, Scale, DollarSign, Plane, Receipt, CreditCard, Printer 
@@ -35,7 +36,8 @@ export default function DocumentDetailPage() {
   const { data: detailsData, isLoading: detailsLoading } = useDocumentDetails(id)
   
   const awbDetails = detailsData?.awb_details
-  const [showInvoicePrint, setShowInvoicePrint] = useState(false)
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false)
+  const [invoiceParams, setInvoiceParams] = useState(null)
   
   if (isLoading) {
     return (
@@ -85,7 +87,7 @@ export default function DocumentDetailPage() {
         </div>
         
         <button
-          onClick={() => setShowInvoicePrint(true)}
+          onClick={() => setShowInvoiceModal(true)}
           className="btn-primary flex items-center gap-2"
         >
           <Printer className="w-4 h-4" />
@@ -93,12 +95,26 @@ export default function DocumentDetailPage() {
         </button>
       </div>
       
-      {showInvoicePrint && (
+      {showInvoiceModal && !invoiceParams && (
+        <InvoiceEditModal
+          documentData={document}
+          awbDetails={awbDetails}
+          onConfirm={(params) => setInvoiceParams(params)}
+          onClose={() => setShowInvoiceModal(false)}
+        />
+      )}
+      
+      {invoiceParams && (
         <div className="sr-only" aria-hidden="true">
           <InvoicePrint
-            document={document}
+            documentData={document}
             awbDetails={awbDetails}
-            onClose={() => setShowInvoicePrint(false)}
+            amountUSD={invoiceParams.amountUSD}
+            usdToGnf={invoiceParams.usdToGnf}
+            onClose={() => {
+              setInvoiceParams(null)
+              setShowInvoiceModal(false)
+            }}
           />
         </div>
       )}

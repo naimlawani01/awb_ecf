@@ -3,14 +3,11 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { numberToFrenchWords } from '../utils/numberToWords'
 
-// Taux de change USD → GNF (configurable)
-const USD_TO_GNF = 8960
-
 /**
  * Composant facture au format Delphinus - optimisé pour l'impression.
- * Affiche une facture basée sur les données AWB du document.
+ * Une seule ligne dans le tableau (pas d'autres frais séparés).
  */
-export default function InvoicePrint({ document, awbDetails, onClose }) {
+export default function InvoicePrint({ documentData, awbDetails, amountUSD, usdToGnf, onClose }) {
   const printRef = useRef(null)
 
   useEffect(() => {
@@ -20,26 +17,26 @@ export default function InvoicePrint({ document, awbDetails, onClose }) {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Facture ${document?.document_number || ''}</title>
+          <title>Facture ${documentData?.document_number || ''}</title>
           <meta charset="utf-8">
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.4; color: #000; padding: 24px; max-width: 210mm; }
-            .header { margin-bottom: 24px; }
-            .invoice-title { font-size: 18pt; font-weight: bold; margin-bottom: 8px; }
+            .header { margin-bottom: 24px; font-size: 14pt; }
+            .invoice-title { font-size: 14pt; font-weight: bold; margin-bottom: 8px; }
             .invoice-number { font-size: 14pt; font-weight: bold; margin-bottom: 16px; }
-            .client-block { margin: 16px 0; padding: 12px; border: 1px solid #333; }
+            .client-block { margin: 16px 0; padding: 12px; border: 1px solid #333; font-size: 12pt; }
             .client-label { font-weight: bold; margin-bottom: 4px; }
-            .section { margin: 12px 0; }
+            .section { margin: 12px 0; font-size: 12pt; }
             .section-label { font-weight: bold; margin-bottom: 4px; }
-            table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+            table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 12pt; }
             th, td { border: 1px solid #333; padding: 8px; text-align: left; }
             th { background: #f0f0f0; font-weight: bold; }
             .text-right { text-align: right; }
             .total-row { font-weight: bold; background: #f5f5f5; }
-            .amount-block { margin: 16px 0; padding: 12px; border: 1px solid #333; }
-            .amount-in-words { font-style: italic; margin: 16px 0; }
-            .signature { margin-top: 48px; text-align: right; }
+            .amount-payer { margin: 16px 0; font-size: 12pt; }
+            .amount-in-words { font-style: italic; margin: 16px 0; font-size: 12pt; }
+            .signature { margin-top: 48px; text-align: right; font-size: 12pt; }
           </style>
         </head>
         <body>${content}</body>
@@ -59,15 +56,15 @@ export default function InvoicePrint({ document, awbDetails, onClose }) {
     iframe.contentWindow.print()
     setTimeout(() => window.document.body.removeChild(iframe), 500)
     onClose?.()
-  }, [document, awbDetails, onClose])
+  }, [documentData, awbDetails, amountUSD, usdToGnf, onClose])
 
-  if (!document) return null
+  if (!documentData) return null
 
-  const docDate = document.document_date ? format(new Date(document.document_date), 'dd MMMM yyyy', { locale: fr }) : '-'
-  const originCode = (awbDetails?.routing?.departure_code || document.origin || '---').substring(0, 3).toUpperCase()
+  const docDate = documentData.document_date ? format(new Date(documentData.document_date), 'dd MMMM yyyy', { locale: fr }) : '-'
+  const originCode = (awbDetails?.routing?.departure_code || documentData.origin || '---').substring(0, 3).toUpperCase()
   const destCode = (awbDetails?.routing?.to?.length > 0
-    ? (awbDetails.routing.to[awbDetails.routing.to.length - 1] || document.destination || '---')
-    : (document.destination || '---')
+    ? (awbDetails.routing.to[awbDetails.routing.to.length - 1] || documentData.destination || '---')
+    : (documentData.destination || '---')
   ).substring(0, 3).toUpperCase()
   const route = `${originCode}-${destCode}`.replace(/---/g, '-')
 
@@ -76,25 +73,23 @@ export default function InvoicePrint({ document, awbDetails, onClose }) {
   const totalWeight = awbDetails?.rate_description?.total_weight ?? awbDetails?.total_weight ?? 0
   const weightScale = awbDetails?.rate_description?.weight_scale ?? awbDetails?.weight_scale ?? 'K'
   const currency = awbDetails?.currency || 'USD'
-  const totalUSD = awbDetails?.rate_description?.items_total ?? awbDetails?.charges_summary?.total_prepaid ?? awbDetails?.items_total ?? 0
-  const otherCharges = awbDetails?.other_charges || []
-  const otherTotal = otherCharges.reduce((sum, c) => sum + (c.amount || 0), 0)
-  const grandTotalUSD = totalUSD + otherTotal
-  const totalGNF = Math.round(grandTotalUSD * USD_TO_GNF)
-  const amountInWords = numberToFrenchWords(totalGNF) + ' francs guinéens'
-
-  const clientName = document.consignee || document.shipper || 'Client'
-  const clientAddress = awbDetails?.consignee_details || ''
   const weightScaleLabel = weightScale === 'K' ? 'Kg' : weightScale
 
-  const invoiceNumber = document.reference_number || `${document.document_number || document.id}/EC/${format(new Date(), 'dd/MM/yy')}`
+  const totalGNF = Math.round(amountUSD * usdToGnf)
+  const amountInWords = numberToFrenchWords(totalGNF) + ' francs guinéens'
+
+  const clientName = documentData.consignee || documentData.shipper || 'Client'
+  const clientAddress = awbDetails?.consignee_details || ''
+
+  const invoiceNumber = documentData.reference_number || `${documentData.document_number || documentData.id}/EC/${format(new Date(), 'dd/MM/yy')}`
 
   const natureDescription = items.length > 0
     ? items.map((it) => `${it.nature || 'Marchandises'}`).filter(Boolean)[0] || 'Transport aérien'
     : 'Transport aérien'
   const piecesPart = totalPieces ? `${totalPieces} colis` : ''
   const weightPart = totalWeight ? `${totalWeight} ${weightScaleLabel}` : ''
-  const operationNature = ['Transport', piecesPart, weightPart, natureDescription, route].filter(Boolean).join(' ')
+  const deNature = natureDescription ? ` de ${natureDescription}` : ''
+  const libelle = `Transport de ${piecesPart} ${weightPart}${deNature} ${route} ${documentData.document_number || ''}`.trim().replace(/\s+/g, ' ')
 
   return (
     <div ref={printRef} className="invoice-print-content">
@@ -111,18 +106,18 @@ export default function InvoicePrint({ document, awbDetails, onClose }) {
 
       <div className="section">
         <p className="section-label">Nature de l'opération :</p>
-        <p>{operationNature}</p>
+        <p>{libelle}</p>
       </div>
 
       <div className="section">
-        <p>LTA : {document.document_number || '-'}</p>
+        <p>LTA : {documentData.document_number || '-'}</p>
       </div>
 
       <div className="section">
         <p className="section-label">Montant Total de l'opération :</p>
         <p>
-          {grandTotalUSD.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} {currency}
-          {' '}(1 USD = {USD_TO_GNF.toLocaleString('fr-FR')} GNF)
+          {amountUSD.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} {currency}
+          {' '}(1 USD = {usdToGnf.toLocaleString('fr-FR')} GNF)
         </p>
       </div>
 
@@ -137,38 +132,13 @@ export default function InvoicePrint({ document, awbDetails, onClose }) {
           </tr>
         </thead>
         <tbody>
-          {items.length > 0 ? (
-            items.map((item, idx) => {
-              const itemGNF = Math.round((item.total || 0) * USD_TO_GNF)
-              const desc = `${item.nature || 'Transport'} ${route} ${document.document_number || ''}`.trim()
-              return (
-                <tr key={idx}>
-                  <td>{idx + 1}</td>
-                  <td>{desc}</td>
-                  <td>{item.pieces} colis</td>
-                  <td className="text-right">{(item.total || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })}</td>
-                  <td className="text-right">{itemGNF.toLocaleString('fr-FR')}</td>
-                </tr>
-              )
-            })
-          ) : (
-            <tr>
-              <td>1</td>
-              <td>Transport {route} {document.document_number || ''}</td>
-              <td>{totalPieces} colis</td>
-              <td className="text-right">{grandTotalUSD.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}</td>
-              <td className="text-right">{totalGNF.toLocaleString('fr-FR')}</td>
-            </tr>
-          )}
-          {otherCharges.map((charge, idx) => (
-            <tr key={`oc-${idx}`}>
-              <td>{items.length + idx + 1}</td>
-              <td>{charge.code || 'Autres frais'}</td>
-              <td>-</td>
-              <td className="text-right">{(charge.amount || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 })}</td>
-              <td className="text-right">{Math.round((charge.amount || 0) * USD_TO_GNF).toLocaleString('fr-FR')}</td>
-            </tr>
-          ))}
+          <tr>
+            <td>1</td>
+            <td>{libelle}</td>
+            <td>{totalPieces} colis</td>
+            <td className="text-right">{amountUSD.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}</td>
+            <td className="text-right">{totalGNF.toLocaleString('fr-FR')}</td>
+          </tr>
         </tbody>
         <tfoot>
           <tr className="total-row">
@@ -178,10 +148,9 @@ export default function InvoicePrint({ document, awbDetails, onClose }) {
         </tfoot>
       </table>
 
-      <div className="amount-block">
-        <p className="section-label">Montant total à Payer :</p>
-        <p>{totalGNF.toLocaleString('fr-FR')} GNF</p>
-      </div>
+      <p className="amount-payer">
+        Montant total à Payer : ………………………. {totalGNF.toLocaleString('fr-FR')} GNF
+      </p>
 
       <p className="amount-in-words">
         Arrêtée la présente facture à la somme de : {amountInWords}.
