@@ -23,8 +23,9 @@ export default function InvoicePrint({ documentData, awbDetails, amountUSD, usdT
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.4; color: #000; padding: 24px; max-width: 210mm; }
             .header { margin-bottom: 24px; font-size: 14pt; font-family: 'Times New Roman', Times, serif; }
+            .date-right { text-align: right; margin-bottom: 8px; }
             .invoice-title { font-size: 14pt; font-weight: bold; margin-bottom: 8px; }
-            .invoice-number { font-size: 14pt; font-weight: bold; margin-bottom: 16px; }
+            .invoice-number { font-size: 14pt; font-weight: bold; margin-bottom: 16px; text-decoration: underline; }
             .client-block { margin: 16px 0; padding: 0; font-size: 12pt; text-align: right; font-family: 'Times New Roman', Times, serif; }
             .client-label { font-weight: bold; margin-bottom: 4px; }
             .section { margin: 12px 0; font-size: 12pt; font-family: 'Times New Roman', Times, serif; }
@@ -34,9 +35,11 @@ export default function InvoicePrint({ documentData, awbDetails, amountUSD, usdT
             th { background: #f0f0f0; font-weight: bold; }
             .text-right { text-align: right; }
             .total-row { font-weight: bold; background: #f5f5f5; }
-            .amount-payer { margin: 16px 0; font-size: 12pt; font-family: 'Times New Roman', Times, serif; }
-            .amount-in-words { font-style: italic; margin: 16px 0; font-size: 12pt; font-family: 'Times New Roman', Times, serif; }
-            .signature { margin-top: 48px; text-align: right; font-size: 12pt; font-family: 'Times New Roman', Times, serif; }
+            .amount-payer { margin: 16px 0; font-size: 14pt; font-weight: bold; font-family: 'Times New Roman', Times, serif; }
+            .amount-in-words { margin: 16px 0; font-size: 12pt; font-family: 'Times New Roman', Times, serif; }
+            .amount-in-words .amount-words { font-style: italic; font-weight: bold; }
+            .signature { margin-top: 48px; text-align: right; font-size: 14pt; font-weight: bold; font-family: 'Times New Roman', Times, serif; }
+            .nature-lta-block { line-height: 1.2; margin: 8px 0; }
           </style>
         </head>
         <body>${content}</body>
@@ -81,7 +84,7 @@ export default function InvoicePrint({ documentData, awbDetails, amountUSD, usdT
   const clientName = documentData.consignee || documentData.shipper || 'Client'
   const clientAddress = awbDetails?.consignee_details || ''
 
-  const invoiceNumber = documentData.reference_number || `${documentData.document_number || documentData.id}/EC/${format(new Date(), 'dd/MM/yy')}`
+  const invoiceNumber = documentData.reference_number || '-'
 
   const natureDescription = items.length > 0
     ? items.map((it) => `${it.nature || 'Marchandises'}`).filter(Boolean)[0] || 'Transport aérien'
@@ -94,23 +97,18 @@ export default function InvoicePrint({ documentData, awbDetails, amountUSD, usdT
   return (
     <div ref={printRef} className="invoice-print-content">
       <div className="header">
-        <p>Conakry, le {docDate}</p>
+        <p className="date-right">Conakry, le {docDate}</p>
         <p className="invoice-title">Facture N° {invoiceNumber}</p>
       </div>
 
       <div className="client-block">
-        <p className="client-label">Client :</p>
-        <p>{clientName}</p>
+        <p className="client-label"><strong>Client : {clientName}</strong></p>
         {clientAddress && <p style={{ marginTop: 8 }}>{clientAddress}</p>}
       </div>
 
-      <div className="section">
-        <p className="section-label">Nature de l'opération :</p>
-        <p>{libelle}</p>
-      </div>
-
-      <div className="section">
-        <p>LTA : {documentData.document_number || '-'}</p>
+      <div className="section nature-lta-block">
+        <p className="section-label"><strong>Nature de l'opération : {libelle}</strong></p>
+        <p style={{ marginTop: 2 }}>LTA : {documentData.document_number || '-'}</p>
       </div>
 
       <div className="section">
@@ -153,7 +151,7 @@ export default function InvoicePrint({ documentData, awbDetails, amountUSD, usdT
       </p>
 
       <p className="amount-in-words">
-        Arrêtée la présente facture à la somme de : {amountInWords}.
+        Arrêtée la présente facture à la somme de : <span className="amount-words">{amountInWords}</span>.
       </p>
 
       <div className="signature">
