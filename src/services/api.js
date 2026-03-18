@@ -99,6 +99,14 @@ export const documentsApi = {
     const response = await api.get(`/documents/${documentId}/details`)
     return response.data
   },
+
+  downloadInvoiceWord: async (documentId, amountUSD, usdToGnf) => {
+    const response = await api.post(`/documents/${documentId}/invoice/word`, {
+      amount_usd: amountUSD,
+      usd_to_gnf: usdToGnf,
+    }, { responseType: 'blob' })
+    return response.data
+  },
 }
 
 // Shipments API

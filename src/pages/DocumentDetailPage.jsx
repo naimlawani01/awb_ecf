@@ -97,6 +97,7 @@ export default function DocumentDetailPage() {
       
       {showInvoiceModal && !invoiceParams && (
         <InvoiceEditModal
+          documentId={document.id}
           documentData={document}
           awbDetails={awbDetails}
           onConfirm={(params) => setInvoiceParams(params)}

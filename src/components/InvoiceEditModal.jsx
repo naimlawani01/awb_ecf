@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
-import { X, Printer } from 'lucide-react'
+import { X, Printer, FileDown } from 'lucide-react'
+import { documentsApi } from '../services/api'
+import toast from 'react-hot-toast'
+import { format } from 'date-fns'
 
 const DEFAULT_USD_TO_GNF = 8960
 
 /**
  * Modal pour éditer le taux de conversion et le montant avant d'imprimer la facture.
  */
-export default function InvoiceEditModal({ documentData, awbDetails, onConfirm, onClose }) {
+export default function InvoiceEditModal({ documentId, documentData, awbDetails, onConfirm, onClose }) {
   const defaultAmount = awbDetails?.rate_description?.items_total ??
     awbDetails?.charges_summary?.total_prepaid ??
     awbDetails?.items_total ?? 0
@@ -20,9 +23,33 @@ export default function InvoiceEditModal({ documentData, awbDetails, onConfirm, 
     if (computedTotal > 0) setAmountUSD(computedTotal)
   }, [computedTotal])
 
+  const [isDownloading, setIsDownloading] = useState(false)
+
   const handleSubmit = (e) => {
     e.preventDefault()
     onConfirm({ amountUSD: Number(amountUSD), usdToGnf: Number(usdToGnf) })
+  }
+
+  const handleDownloadWord = async () => {
+    if (!documentId) return
+    setIsDownloading(true)
+    try {
+      const blob = await documentsApi.downloadInvoiceWord(documentId, amountUSD, usdToGnf)
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `facture_${documentData?.document_number || documentId}_${format(new Date(), 'yyyyMMdd_HHmm')}.docx`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+      toast.success('Facture Word téléchargée')
+    } catch (err) {
+      console.error(err)
+      toast.error('Échec du téléchargement')
+    } finally {
+      setIsDownloading(false)
+    }
   }
 
   const totalGNF = Math.round(amountUSD * usdToGnf)
@@ -81,11 +108,22 @@ export default function InvoiceEditModal({ documentData, awbDetails, onConfirm, 
             <p className="text-lg font-bold text-elite-400">{totalGNF.toLocaleString('fr-FR')} GNF</p>
           </div>
 
-          <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="btn-secondary flex-1">
-              Annuler
-            </button>
-            <button type="submit" className="btn-primary flex-1 flex items-center justify-center gap-2">
+          <div className="flex flex-col gap-3 pt-2">
+            <div className="flex gap-3">
+              <button type="button" onClick={onClose} className="btn-secondary flex-1">
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleDownloadWord}
+                disabled={isDownloading}
+                className="btn-secondary flex-1 flex items-center justify-center gap-2"
+              >
+                <FileDown className="w-4 h-4" />
+                {isDownloading ? 'Téléchargement...' : 'Télécharger Word'}
+              </button>
+            </div>
+            <button type="submit" className="btn-primary w-full flex items-center justify-center gap-2">
               <Printer className="w-4 h-4" />
               Générer et imprimer
             </button>
