@@ -88,7 +88,8 @@ export default function InvoicePrint({ documentData, awbDetails, amountUSD, usdT
   const clientAddress = awbDetails?.consignee_details || ''
 
   const ref = documentData.reference_number || ''
-  const datePart = format(new Date(), 'dd/MM/yy')
+  const docDate = documentData.document_date ? new Date(documentData.document_date) : new Date()
+  const datePart = format(docDate, 'dd/MM/yy')
   const invoiceNumber = ref ? `${ref}/EC/JA/${datePart}` : '-'
 
   const natureDescription = items.length > 0
