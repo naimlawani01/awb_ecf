@@ -1,11 +1,14 @@
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useDocument, useDocumentLogs, useDocumentDetails } from '../hooks/useDocuments'
 import LoadingSpinner from '../components/LoadingSpinner'
+import InvoicePrint from '../components/InvoicePrint'
 import { 
   ArrowLeft, FileText, User, MapPin, Calendar, Clock, Tag, 
-  Package, Scale, DollarSign, Plane, Receipt, CreditCard 
+  Package, Scale, DollarSign, Plane, Receipt, CreditCard, Printer 
 } from 'lucide-react'
 import { format } from 'date-fns'
+import { fr } from 'date-fns/locale'
 import clsx from 'clsx'
 
 const statusMap = {
@@ -17,11 +20,11 @@ const statusMap = {
 }
 
 const typeMap = {
-  1: 'Air Waybill (AWB)',
-  2: 'House Waybill (HAWB)',
-  3: 'Master Waybill (MAWB)',
-  4: 'Commercial Invoice',
-  5: 'Packing List',
+  1: 'Lettre de transport aérien (AWB)',
+  2: 'Lettre de transport interne (HAWB)',
+  3: 'Lettre de transport master (MAWB)',
+  4: 'Facture commerciale',
+  5: 'Liste de colisage',
 }
 
 export default function DocumentDetailPage() {
@@ -32,6 +35,7 @@ export default function DocumentDetailPage() {
   const { data: detailsData, isLoading: detailsLoading } = useDocumentDetails(id)
   
   const awbDetails = detailsData?.awb_details
+  const [showInvoicePrint, setShowInvoicePrint] = useState(false)
   
   if (isLoading) {
     return (
@@ -76,10 +80,28 @@ export default function DocumentDetailPage() {
             <span className={clsx('badge', status.class)}>{status.label}</span>
           </div>
           <p className="text-gray-400 text-sm mt-1">
-            {typeMap[document.document_type] || `Document Type ${document.document_type}`}
+            {typeMap[document.document_type] || `Type de document ${document.document_type}`}
           </p>
         </div>
+        
+        <button
+          onClick={() => setShowInvoicePrint(true)}
+          className="btn-primary flex items-center gap-2"
+        >
+          <Printer className="w-4 h-4" />
+          Imprimer facture
+        </button>
       </div>
+      
+      {showInvoicePrint && (
+        <div className="sr-only" aria-hidden="true">
+          <InvoicePrint
+            document={document}
+            awbDetails={awbDetails}
+            onClose={() => setShowInvoicePrint(false)}
+          />
+        </div>
+      )}
       
       {/* Main content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -138,36 +160,47 @@ export default function DocumentDetailPage() {
               Informations de route
             </h3>
             
-            <div className="flex items-center justify-center gap-8">
-              <div className="text-center min-w-[80px]">
-                <div className="w-16 h-16 rounded-full bg-elite-400/20 flex items-center justify-center mb-2 mx-auto">
-                  <span className="text-xl font-display font-bold text-elite-400">
-                    {(document.origin || '---').substring(0, 3).toUpperCase()}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-400">Origine</p>
-                {document.origin && document.origin.length > 3 && (
-                  <p className="text-xs text-gray-500 mt-1">{document.origin}</p>
-                )}
-              </div>
+            {(() => {
+              const originCode = (awbDetails?.routing?.departure_code || document.origin || '---').substring(0, 3).toUpperCase()
+              const destCode = awbDetails?.routing?.to?.length > 0
+                ? awbDetails.routing.to[awbDetails.routing.to.length - 1]?.substring(0, 3).toUpperCase() || '---'
+                : (document.destination || '---').substring(0, 3).toUpperCase()
+              const originFull = awbDetails?.routing?.departure || document.origin || ''
+              const destFull = awbDetails?.routing?.destination || document.destination || ''
               
-              <div className="flex-1 max-w-xs relative">
-                <div className="h-0.5 bg-gradient-to-r from-elite-400 to-primary-600" />
-                <Plane className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              </div>
-              
-              <div className="text-center min-w-[80px]">
-                <div className="w-16 h-16 rounded-full bg-primary-600/20 flex items-center justify-center mb-2 mx-auto">
-                  <span className="text-xl font-display font-bold text-primary-400">
-                    {(document.destination || '---').substring(0, 3).toUpperCase()}
-                  </span>
+              return (
+                <div className="flex items-center justify-center gap-8">
+                  <div className="text-center min-w-[80px]">
+                    <div className="w-16 h-16 rounded-full bg-elite-400/20 flex items-center justify-center mb-2 mx-auto">
+                      <span className="text-xl font-display font-bold text-elite-400">
+                        {originCode}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-400">Origine</p>
+                    {originFull && originFull.length > 3 && (
+                      <p className="text-xs text-gray-500 mt-1">{originFull}</p>
+                    )}
+                  </div>
+                  
+                  <div className="flex-1 max-w-xs relative">
+                    <div className="h-0.5 bg-gradient-to-r from-elite-400 to-primary-600" />
+                    <Plane className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  </div>
+                  
+                  <div className="text-center min-w-[80px]">
+                    <div className="w-16 h-16 rounded-full bg-primary-600/20 flex items-center justify-center mb-2 mx-auto">
+                      <span className="text-xl font-display font-bold text-primary-400">
+                        {destCode}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-400">Destination</p>
+                    {destFull && destFull.length > 3 && (
+                      <p className="text-xs text-gray-500 mt-1">{destFull}</p>
+                    )}
+                  </div>
                 </div>
-                <p className="text-sm text-gray-400">Destination</p>
-                {document.destination && document.destination.length > 3 && (
-                  <p className="text-xs text-gray-500 mt-1">{document.destination}</p>
-                )}
-              </div>
-            </div>
+              )
+            })()}
             
             {/* Flight routing details */}
             {awbDetails?.routing && (awbDetails.routing.flights?.length > 0 || awbDetails.routing.by?.length > 0) && (
@@ -523,7 +556,7 @@ export default function DocumentDetailPage() {
                 <label className="text-sm text-gray-500">Date du document</label>
                 <p className="text-white">
                   {document.document_date
-                    ? format(new Date(document.document_date), 'PPP')
+                    ? format(new Date(document.document_date), 'PPP', { locale: fr })
                     : '-'}
                 </p>
               </div>
@@ -531,7 +564,7 @@ export default function DocumentDetailPage() {
                 <label className="text-sm text-gray-500">Créé le</label>
                 <p className="text-white">
                   {document.date_created
-                    ? format(new Date(document.date_created), 'PPP p')
+                    ? format(new Date(document.date_created), 'PPP p', { locale: fr })
                     : '-'}
                 </p>
               </div>
@@ -539,7 +572,7 @@ export default function DocumentDetailPage() {
                 <label className="text-sm text-gray-500">Dernière modification</label>
                 <p className="text-white">
                   {document.date_modified
-                    ? format(new Date(document.date_modified), 'PPP p')
+                    ? format(new Date(document.date_modified), 'PPP p', { locale: fr })
                     : '-'}
                 </p>
               </div>
@@ -572,10 +605,10 @@ export default function DocumentDetailPage() {
                     className="p-3 rounded-lg bg-white/5 text-sm"
                   >
                     <p className="text-gray-400">
-                      Type: {log.log_type}
+                      Type : {log.log_type}
                     </p>
                     <p className="text-gray-500 text-xs mt-1">
-                      {format(new Date(log.log_date), 'PPP p')}
+                      {format(new Date(log.log_date), 'PPP p', { locale: fr })}
                     </p>
                   </div>
                 ))}

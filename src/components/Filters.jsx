@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Search, X, Filter, ChevronDown } from 'lucide-react'
 import clsx from 'clsx'
 
-export function SearchInput({ value, onChange, placeholder = 'Search...' }) {
+export function SearchInput({ value, onChange, placeholder = 'Rechercher...' }) {
   return (
     <div className="relative">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
@@ -25,7 +25,7 @@ export function SearchInput({ value, onChange, placeholder = 'Search...' }) {
   )
 }
 
-export function SelectFilter({ value, onChange, options, placeholder = 'Select...' }) {
+export function SelectFilter({ value, onChange, options, placeholder = 'Sélectionner...' }) {
   return (
     <div className="relative">
       <select
@@ -54,7 +54,7 @@ export function DateRangeFilter({ startDate, endDate, onStartChange, onEndChange
         onChange={(e) => onStartChange(e.target.value || null)}
         className="input-field"
       />
-      <span className="text-gray-500">to</span>
+      <span className="text-gray-500">au</span>
       <input
         type="date"
         value={endDate || ''}
@@ -78,10 +78,10 @@ export function FilterPanel({ filters, onFilterChange, onClearAll }) {
       >
         <div className="flex items-center gap-3">
           <Filter className="w-5 h-5 text-elite-400" />
-          <span className="font-medium text-white">Filters</span>
+          <span className="font-medium text-white">Filtres</span>
           {activeFilterCount > 0 && (
             <span className="px-2 py-0.5 bg-elite-400/20 text-elite-400 text-xs rounded-full">
-              {activeFilterCount} active
+              {activeFilterCount} actif(s)
             </span>
           )}
         </div>
@@ -105,7 +105,7 @@ export function FilterPanel({ filters, onFilterChange, onClearAll }) {
                 onClick={onClearAll}
                 className="text-sm text-gray-400 hover:text-white"
               >
-                Clear all filters
+                Effacer tous les filtres
               </button>
             </div>
           )}

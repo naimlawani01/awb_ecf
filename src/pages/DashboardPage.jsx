@@ -379,7 +379,7 @@ export default function DashboardPage() {
                     <span className="text-white font-bold text-lg">
                       {client.document_count}
                     </span>
-                    <span className="text-gray-500 text-xs">docs</span>
+                    <span className="text-gray-500 text-xs">doc.</span>
                   </div>
                 </Link>
               ))}
@@ -463,7 +463,7 @@ export default function DashboardPage() {
             {routes?.main_hub && (
               <span className="text-xs text-gray-500 bg-elite-900/30 px-2 py-1 rounded-full flex items-center gap-1">
                 <MapPin className="w-3 h-3" />
-                Hub: {routes.main_hub}
+                Hub : {routes.main_hub}
               </span>
             )}
           </div>

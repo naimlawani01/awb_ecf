@@ -189,7 +189,7 @@ export function MonthlyVolumeChart({ data, height = 300 }) {
         />
         <Bar
           dataKey="shipment_count"
-          name="Shipments"
+          name="Expéditions"
           fill="#05b89e"
           radius={[4, 4, 0, 0]}
         />

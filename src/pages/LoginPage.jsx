@@ -38,22 +38,22 @@ export default function LoginPage() {
     setError('')
     
     if (!username || !password) {
-      setError('Please enter username and password')
+      setError('Veuillez entrer votre nom d\'utilisateur et mot de passe')
       return
     }
     
     try {
       await login(username, password)
     } catch (err) {
-      setError(err.response?.data?.detail || 'Login failed')
+      setError(err.response?.data?.detail || 'Échec de la connexion')
     }
   }
 
   const features = [
-    { icon: Package, text: 'Complete AWB management', delay: '0.3s' },
-    { icon: Globe2, text: 'Global shipment tracking', delay: '0.4s' },
-    { icon: BarChart3, text: 'Advanced analytics & reports', delay: '0.5s' },
-    { icon: Shield, text: 'Secure data management', delay: '0.6s' },
+    { icon: Package, text: 'Gestion complète des AWB', delay: '0.3s' },
+    { icon: Globe2, text: 'Suivi des expéditions mondial', delay: '0.4s' },
+    { icon: BarChart3, text: 'Analyses et rapports avancés', delay: '0.5s' },
+    { icon: Shield, text: 'Gestion sécurisée des données', delay: '0.6s' },
   ]
   
   return (
@@ -97,12 +97,12 @@ export default function LoginPage() {
           </div>
           
           <h1 className="text-4xl font-bold text-white mb-4 tracking-tight">
-            Air Waybill
-            <span className="block text-gradient mt-1">Management Platform</span>
+            Plateforme de gestion
+            <span className="block text-gradient mt-1">Air Waybill</span>
           </h1>
           
           <p className="text-lg text-gray-400 mb-10 max-w-md leading-relaxed">
-            Professional cargo documentation system for efficient air freight operations worldwide.
+            Système professionnel de documentation cargo pour des opérations de fret aérien efficaces.
           </p>
           
           <div className="space-y-4">
@@ -123,9 +123,9 @@ export default function LoginPage() {
           {/* Stats preview */}
           <div className="mt-12 grid grid-cols-3 gap-6">
             {[
-              { value: '50K+', label: 'AWB Processed' },
-              { value: '120+', label: 'Airlines' },
-              { value: '99.9%', label: 'Uptime' },
+              { value: '50K+', label: 'AWB traités' },
+              { value: '120+', label: 'Compagnies' },
+              { value: '99.9%', label: 'Disponibilité' },
             ].map((stat, index) => (
               <div 
                 key={index} 
@@ -234,11 +234,6 @@ export default function LoginPage() {
               </button>
             </form>
             
-            <div className="mt-6 p-4 bg-elite-900/30 border border-elite-800/30 rounded-xl">
-              <p className="text-xs text-gray-400 text-center font-mono">
-                <span className="text-gray-500">Demo:</span> admin / admin123!
-              </p>
-            </div>
           </div>
           
           <p className="mt-8 text-center text-sm text-gray-500">
