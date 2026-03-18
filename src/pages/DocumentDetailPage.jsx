@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useDocument, useDocumentLogs, useDocumentDetails } from '../hooks/useDocuments'
 import LoadingSpinner from '../components/LoadingSpinner'
-import InvoicePrint from '../components/InvoicePrint'
 import InvoiceEditModal from '../components/InvoiceEditModal'
 import { 
   ArrowLeft, FileText, User, MapPin, Calendar, Clock, Tag, 
@@ -37,7 +36,6 @@ export default function DocumentDetailPage() {
   
   const awbDetails = detailsData?.awb_details
   const [showInvoiceModal, setShowInvoiceModal] = useState(false)
-  const [invoiceParams, setInvoiceParams] = useState(null)
   
   if (isLoading) {
     return (
@@ -95,29 +93,13 @@ export default function DocumentDetailPage() {
         </button>
       </div>
       
-      {showInvoiceModal && !invoiceParams && (
+      {showInvoiceModal && (
         <InvoiceEditModal
           documentId={document.id}
           documentData={document}
           awbDetails={awbDetails}
-          onConfirm={(params) => setInvoiceParams(params)}
           onClose={() => setShowInvoiceModal(false)}
         />
-      )}
-      
-      {invoiceParams && (
-        <div className="sr-only" aria-hidden="true">
-          <InvoicePrint
-            documentData={document}
-            awbDetails={awbDetails}
-            amountUSD={invoiceParams.amountUSD}
-            usdToGnf={invoiceParams.usdToGnf}
-            onClose={() => {
-              setInvoiceParams(null)
-              setShowInvoiceModal(false)
-            }}
-          />
-        </div>
       )}
       
       {/* Main content */}

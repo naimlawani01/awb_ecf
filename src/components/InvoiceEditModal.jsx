@@ -9,7 +9,7 @@ const DEFAULT_USD_TO_GNF = 8960
 /**
  * Modal pour éditer le taux de conversion et le montant avant d'imprimer la facture.
  */
-export default function InvoiceEditModal({ documentId, documentData, awbDetails, onConfirm, onClose }) {
+export default function InvoiceEditModal({ documentId, documentData, awbDetails, onClose }) {
   const defaultAmount = awbDetails?.rate_description?.items_total ??
     awbDetails?.charges_summary?.total_prepaid ??
     awbDetails?.items_total ?? 0
@@ -24,11 +24,7 @@ export default function InvoiceEditModal({ documentId, documentData, awbDetails,
   }, [computedTotal])
 
   const [isDownloading, setIsDownloading] = useState(false)
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    onConfirm({ amountUSD: Number(amountUSD), usdToGnf: Number(usdToGnf) })
-  }
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
 
   const handleDownloadWord = async () => {
     if (!documentId) return
@@ -52,6 +48,29 @@ export default function InvoiceEditModal({ documentId, documentData, awbDetails,
     }
   }
 
+  const handleGeneratePdf = async () => {
+    if (!documentId) return
+    setIsGeneratingPdf(true)
+    try {
+      const blob = await documentsApi.downloadInvoicePdf(documentId, amountUSD, usdToGnf)
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `facture_${documentData?.document_number || documentId}_${format(new Date(), 'yyyyMMdd_HHmm')}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.open(url, '_blank')
+      setTimeout(() => window.URL.revokeObjectURL(url), 5000)
+      toast.success('Facture PDF générée')
+    } catch (err) {
+      console.error(err)
+      toast.error('Échec de la génération PDF')
+    } finally {
+      setIsGeneratingPdf(false)
+    }
+  }
+
   const totalGNF = Math.round(amountUSD * usdToGnf)
 
   return (
@@ -67,7 +86,7 @@ export default function InvoiceEditModal({ documentId, documentData, awbDetails,
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={(e) => e.preventDefault()} className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-2">
               Taux de conversion (1 USD = ? GNF)
@@ -123,9 +142,14 @@ export default function InvoiceEditModal({ documentId, documentData, awbDetails,
                 {isDownloading ? 'Téléchargement...' : 'Télécharger Word'}
               </button>
             </div>
-            <button type="submit" className="btn-primary w-full flex items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={handleGeneratePdf}
+              disabled={isGeneratingPdf}
+              className="btn-primary w-full flex items-center justify-center gap-2"
+            >
               <Printer className="w-4 h-4" />
-              Générer et imprimer
+              {isGeneratingPdf ? 'Génération...' : 'Générer et imprimer (PDF)'}
             </button>
           </div>
         </form>

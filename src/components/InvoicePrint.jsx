@@ -40,6 +40,9 @@ export default function InvoicePrint({ documentData, awbDetails, amountUSD, usdT
             .amount-in-words .amount-words { font-style: italic; font-weight: bold; }
             .signature { margin-top: 48px; text-align: right; font-size: 14pt; font-weight: bold; font-family: 'Times New Roman', Times, serif; }
             .nature-lta-block { line-height: 1.2; margin: 8px 0; }
+            .section-underline { text-decoration: underline; }
+            .lta-block { margin: 0; padding: 0; line-height: 1; }
+            .lta-block p { margin: 0; padding: 0; }
           </style>
         </head>
         <body>${content}</body>
@@ -84,7 +87,9 @@ export default function InvoicePrint({ documentData, awbDetails, amountUSD, usdT
   const clientName = documentData.consignee || documentData.shipper || 'Client'
   const clientAddress = awbDetails?.consignee_details || ''
 
-  const invoiceNumber = documentData.reference_number || '-'
+  const ref = documentData.reference_number || ''
+  const datePart = format(new Date(), 'dd/MM/yy')
+  const invoiceNumber = ref ? `${ref}/EC/JA/${datePart}` : '-'
 
   const natureDescription = items.length > 0
     ? items.map((it) => `${it.nature || 'Marchandises'}`).filter(Boolean)[0] || 'Transport aérien'
@@ -107,14 +112,15 @@ export default function InvoicePrint({ documentData, awbDetails, amountUSD, usdT
       </div>
 
       <div className="section nature-lta-block">
-        <p className="section-label"><strong>Nature de l'opération : {libelle}</strong></p>
-        <p style={{ marginTop: 2 }}>LTA : {documentData.document_number || '-'}</p>
+        <p className="section-label section-underline"><strong>Nature de l'opération : {libelle}</strong></p>
+        <div className="lta-block">
+          <p>LTA : {documentData.document_number || '-'}</p>
+        </div>
       </div>
 
       <div className="section">
-        <p className="section-label">Montant Total de l'opération :</p>
-        <p>
-          {amountUSD.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} {currency}
+        <p className="section-label section-underline">
+          Montant Total de l'opération : {amountUSD.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} {currency}
           {' '}(1 USD = {usdToGnf.toLocaleString('fr-FR')} GNF)
         </p>
       </div>

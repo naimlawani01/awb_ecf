@@ -107,6 +107,14 @@ export const documentsApi = {
     }, { responseType: 'blob' })
     return response.data
   },
+
+  downloadInvoicePdf: async (documentId, amountUSD, usdToGnf) => {
+    const response = await api.post(`/documents/${documentId}/invoice/pdf`, {
+      amount_usd: amountUSD,
+      usd_to_gnf: usdToGnf,
+    }, { responseType: 'blob' })
+    return response.data
+  },
 }
 
 // Shipments API
