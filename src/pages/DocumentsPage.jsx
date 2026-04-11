@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { useDocuments } from '../hooks/useDocuments'
 import DataTable from '../components/DataTable'
 import { SearchInput, SelectFilter, DateRangeFilter } from '../components/Filters'
@@ -12,6 +13,7 @@ import {
   FileType,
   X,
   Plane,
+  Package,
   ChevronDown,
   Search,
   Clock,
@@ -19,7 +21,7 @@ import {
 } from 'lucide-react'
 import { format, formatDistanceToNow, subMonths, subDays, startOfMonth, startOfWeek, startOfYear, startOfQuarter } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { exportApi } from '../services/api'
+import { exportApi, referenceApi, statisticsApi } from '../services/api'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 
@@ -73,12 +75,74 @@ export default function DocumentsPage() {
     consignee: searchParams.get('consignee') || '',
     origin: searchParams.get('origin') || '',
     destination: searchParams.get('destination') || '',
+    airline: searchParams.get('airline') || '',
+    commodity_nature: searchParams.get('commodity_nature') || '',
     status: searchParams.get('status') || null,
     start_date: searchParams.get('start_date') || null,
     end_date: searchParams.get('end_date') || null,
   })
   
   const [filters, setFilters] = useState(getInitialFilters)
+
+  /** Préfixes issus des AWB en base (souvent la seule source fiable si user_airline est vide) */
+  const { data: airlinesFromDocs } = useQuery({
+    queryKey: ['statistics', 'airlines', 'documents-filter'],
+    queryFn: () => statisticsApi.getAirlines(200),
+    staleTime: 1000 * 60 * 5,
+  })
+
+  const { data: airlinesReference } = useQuery({
+    queryKey: ['reference', 'airlines', 'documents-filter'],
+    queryFn: () => referenceApi.getAirlines({ page: 1, page_size: 200 }),
+    staleTime: 1000 * 60 * 30,
+  })
+
+  const airlineFilterOptions = useMemo(() => {
+    const byPrefix = new Map()
+
+    const normalizePrefix = (raw) => {
+      const s = raw != null ? String(raw).trim() : ''
+      if (!s) return ''
+      const digits = s.replace(/\D/g, '')
+      if (digits.length >= 3) return digits.slice(0, 3)
+      if (s.length >= 3 && /^\d{3}/.test(s)) return s.slice(0, 3)
+      if (/^\d+$/.test(s) && s.length >= 1) return s.length <= 3 ? s.padStart(3, '0') : s.slice(0, 3)
+      return ''
+    }
+
+    for (const a of airlinesFromDocs?.airlines || []) {
+      const p = normalizePrefix(a.prefix)
+      if (p.length !== 3) continue
+      const count = typeof a.count === 'number' ? a.count : 0
+      byPrefix.set(p, {
+        value: p,
+        label: `${a.airline_name || `Compagnie (${p})`} (${p})${count ? ` · ${count} AWB` : ''}`,
+      })
+    }
+
+    for (const a of airlinesReference?.items || []) {
+      const p = normalizePrefix(a.prefix)
+      if (p.length !== 3) continue
+      if (byPrefix.has(p)) continue
+      const name = (a.name || '').trim() || p
+      const des = (a.designator != null ? String(a.designator).trim() : '')
+      byPrefix.set(p, {
+        value: p,
+        label: des ? `${name} (${des} · ${p})` : `${name} (${p})`,
+      })
+    }
+
+    return Array.from(byPrefix.values()).sort((a, b) =>
+      a.label.localeCompare(b.label, 'fr', { sensitivity: 'base' })
+    )
+  }, [airlinesFromDocs, airlinesReference])
+
+  const airlineTagLabel = useMemo(() => {
+    const p = (filters.airline || '').trim()
+    if (!p) return ''
+    const opt = airlineFilterOptions.find((o) => o.value === p)
+    return opt ? opt.label : p
+  }, [filters.airline, airlineFilterOptions])
   
   // Appliquer une période prédéfinie
   const handlePeriodChange = (periodId) => {
@@ -267,6 +331,8 @@ export default function DocumentsPage() {
       consignee: '',
       origin: '',
       destination: '',
+      airline: '',
+      commodity_nature: '',
       status: null,
       start_date: null,
       end_date: null,
@@ -514,6 +580,33 @@ export default function DocumentsPage() {
                   placeholder="Code aéroport (ex: CDG)..."
                 />
               </div>
+
+              <div>
+                <label className="block text-sm text-gray-400 mb-2 font-medium flex items-center gap-2">
+                  <Plane className="w-4 h-4" />
+                  Compagnie aérienne
+                </label>
+                <SelectFilter
+                  value={filters.airline || null}
+                  onChange={(value) =>
+                    updateFilters({ ...filters, airline: value ? String(value).trim() : '' })
+                  }
+                  options={airlineFilterOptions}
+                  placeholder="Toutes les compagnies"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-400 mb-2 font-medium flex items-center gap-2">
+                  <Package className="w-4 h-4" />
+                  Nature des marchandises
+                </label>
+                <SearchInput
+                  value={filters.commodity_nature}
+                  onChange={(value) => updateFilters({ ...filters, commodity_nature: value })}
+                  placeholder="Mot / code exact (ex. val, pes, doc…)"
+                />
+              </div>
               
               <div>
                 <label className="block text-sm text-gray-400 mb-2 font-medium">Statut</label>
@@ -572,17 +665,21 @@ export default function DocumentsPage() {
                       consignee: 'Destinataire',
                       origin: 'Origine',
                       destination: 'Destination',
+                      airline: 'Compagnie',
+                      commodity_nature: 'Marchandise',
                       status: 'Statut',
                       start_date: 'Du',
                       end_date: 'Au',
                     }
+                    const displayValue =
+                      key === 'airline' ? airlineTagLabel || value : value
                     return (
                       <span
                         key={key}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-elite-600/15 text-elite-400 text-xs rounded-full"
                       >
                         <span className="text-gray-400">{labelMap[key] || key}:</span>
-                        <span className="font-medium">{value}</span>
+                        <span className="font-medium">{displayValue}</span>
                         <button
                           onClick={() => {
                             updateFilters({ ...filters, [key]: key === 'status' ? null : '' })
